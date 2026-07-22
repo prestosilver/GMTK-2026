@@ -2,7 +2,12 @@
 
 ## Chaos diagram
 
-- GMTK Submission (Required)
+- GMTK Submission (Task)
+    - Needs to be done in 7 days (Requirement)
+    - Needs to fit the theme "Count down" (Requirement)
+        * Decremental
+        * Stats go down
+        * Warioware last few seconds
 
 ## Timeline
 
