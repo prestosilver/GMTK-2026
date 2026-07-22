@@ -43,10 +43,10 @@ pub fn build(b: *std.Build) !void {
             .install_dir = install_dir,
             .shell_file_path = b.path("src/shell.html"),
             .embed_paths = &.{
-                .{
-                    .src_path = "assets/desk.png",
-                    .virtual_path = "desk.png",
-                },
+                // .{
+                //     .src_path = "assets/thing.png",
+                //     .virtual_path = "thing.png",
+                // },
             },
         });
         b.getInstallStep().dependOn(emcc_step);

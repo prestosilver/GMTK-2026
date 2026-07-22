@@ -28,10 +28,12 @@ pub fn main() !void {
         switch (state) {
             .game => {},
         }
-        
+
         // draw frame
         rl.beginDrawing();
         defer rl.endDrawing();
+
+        rl.clearBackground(.white);
 
         switch (state) {
             .game => {},
