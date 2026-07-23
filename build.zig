@@ -1,6 +1,8 @@
 const std = @import("std");
 const rlz = @import("raylib_zig");
 
+const GAME_NAME = "gmtk-2026";
+
 pub fn build(b: *std.Build) !void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
@@ -62,7 +64,7 @@ pub fn build(b: *std.Build) !void {
         run_step.dependOn(emrun_step);
     } else {
         const exe = b.addExecutable(.{
-            .name = "gmtk-2026",
+            .name = GAME_NAME,
             .root_module = exe_mod,
         });
         b.installArtifact(exe);
