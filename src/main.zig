@@ -3,7 +3,7 @@ const rl = @import("raylib");
 const build_options = @import("build_options");
 
 const Board = @import("Board.zig");
-const Dart = @import("Board.zig");
+const Dart = @import("Dart.zig");
 
 const SCREEN_WIDTH = 1200;
 const SCREEN_HEIGHT = 675;
