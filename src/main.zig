@@ -19,7 +19,7 @@ var darts: std.ArrayList(Dart) = .initBuffer(&darts_buffer);
 
 var throwing_dart: Dart = .{};
 
-pub fn sendHighscore(name: [3]u8, score: u32) void {
+pub fn sendHighscore(name: *const [3]u8, score: u32) void {
     switch (@import("builtin").cpu.arch) {
         .wasm32 => {
             // We shouldnt be calling this much
@@ -29,7 +29,7 @@ pub fn sendHighscore(name: [3]u8, score: u32) void {
                 \\sendHighscore(UTF8ToString($0), $1);
             ), .{ &name, score });
         },
-        else => |platform| std.log.info("unimplemented: sendHighscore on {s}", .{@tagName(platform)}),
+        else => |platform| std.log.warn("unimplemented: sendHighscore({s}, {}) on {s}", .{ name, score, @tagName(platform) }),
     }
 }
 
@@ -44,7 +44,11 @@ pub fn main() !void {
     // const thing_image = try rl.loadTexture("thing.png");
     // defer thing_image.unload();
 
-    sendHighscore("JEF".*, 32);
+    sendHighscore("JEF", 32);
+
+    darts.appendAssumeCapacity(.{
+        .position = .{ .x = 20, .y = 20 },
+    });
 
     while (!rl.windowShouldClose()) {
         const dt = rl.getFrameTime();
@@ -67,7 +71,14 @@ pub fn main() !void {
 
         switch (state) {
             .game => {
-                board.draw();
+                const board_bounds: rl.Rectangle = .{
+                    .x = 0,
+                    .y = 0,
+                    .width = SCREEN_HEIGHT, // square
+                    .height = SCREEN_HEIGHT,
+                };
+
+                board.draw(board_bounds);
 
                 for (darts.items) |dart|
                     dart.draw();
