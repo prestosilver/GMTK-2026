@@ -3,8 +3,8 @@ const rl = @import("raylib");
 
 const Dart = @This();
 
-const DART_WIDTH = 20;
-const DART_HEIGHT = 30;
+const DART_WIDTH = 30;
+const DART_HEIGHT = 80;
 
 position: rl.Vector2 = .{ .x = 0, .y = 0 },
 
