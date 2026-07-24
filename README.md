@@ -60,7 +60,7 @@
 ## Timeline
 
 - [ ] Day 1 (Frenchday)
-    - [ ] Person: Zig js transport
+    - [X] Person: Zig js transport
     - [ ] The sami: Leaderboard 
     - [ ] Person: Art
 - [ ] Day 2 (Sa-TURD-day)
