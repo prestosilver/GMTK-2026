@@ -1,13 +1,23 @@
-// TODO: Make sure this compiles with zig 0.16
-
 const std = @import("std");
 const rl = @import("raylib");
 const build_options = @import("build_options");
+
+const Board = @import("Board.zig");
+const Dart = @import("Board.zig");
 
 const SCREEN_WIDTH = 1200;
 const SCREEN_HEIGHT = 675;
 
 var state: enum { game } = .game;
+
+var board: Board = .{};
+
+const MAX_DARTS = 1024;
+
+var darts_buffer: [MAX_DARTS]Dart = undefined;
+var darts: std.ArrayList(Dart) = .initBuffer(&darts_buffer);
+
+var throwing_dart: Dart = .{};
 
 pub fn sendHighscore(name: [3]u8, score: u32) void {
     switch (@import("builtin").cpu.arch) {
@@ -38,11 +48,15 @@ pub fn main() !void {
 
     while (!rl.windowShouldClose()) {
         const dt = rl.getFrameTime();
-        _ = dt;
 
         // update state
         switch (state) {
-            .game => {},
+            .game => {
+                try board.update(dt);
+
+                for (darts.items) |*dart|
+                    try dart.update(dt);
+            },
         }
 
         // draw frame
@@ -52,7 +66,12 @@ pub fn main() !void {
         rl.clearBackground(.white);
 
         switch (state) {
-            .game => {},
+            .game => {
+                board.draw();
+
+                for (darts.items) |dart|
+                    dart.draw();
+            },
         }
     }
 }
