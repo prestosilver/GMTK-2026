@@ -7,6 +7,9 @@ pub fn build(b: *std.Build) !void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
+    const options = b.addOptions();
+    options.addOption([:0]const u8, "GAME_NAME", GAME_NAME);
+
     const raylib_dep = b.dependency("raylib_zig", .{
         .target = target,
         .optimize = optimize,
@@ -22,6 +25,7 @@ pub fn build(b: *std.Build) !void {
         .optimize = optimize,
         .imports = &.{
             .{ .name = "raylib", .module = raylib },
+            .{ .name = "build_options", .module = options.createModule() },
         },
     });
 
@@ -45,10 +49,7 @@ pub fn build(b: *std.Build) !void {
             .install_dir = install_dir,
             .shell_file_path = b.path("src/shell.html"),
             .embed_paths = &.{
-                // .{
-                //     .src_path = "assets/thing.png",
-                //     .virtual_path = "thing.png",
-                // },
+                // .{ .src_path = "assets/thing.png", .virtual_path = "thing.png" },
             },
         });
         b.getInstallStep().dependOn(emcc_step);
@@ -70,8 +71,8 @@ pub fn build(b: *std.Build) !void {
         b.installArtifact(exe);
 
         // Add an image
-        // const iconset = b.addInstallFile(b.path("assets/thing.png"), "bin/thing.png");
-        // b.getInstallStep().dependOn(&iconset.step);
+        // const thing_image_step = b.addInstallFile(b.path("assets/thing.png"), "bin/thing.png");
+        // b.getInstallStep().dependOn(&thing_image_step.step);
 
         const run_cmd = b.addRunArtifact(exe);
         run_cmd.cwd = b.path("zig-out/bin");
@@ -79,9 +80,8 @@ pub fn build(b: *std.Build) !void {
         run_step.dependOn(&run_cmd.step);
         run_cmd.step.dependOn(b.getInstallStep());
 
-        if (b.args) |args| {
+        if (b.args) |args|
             run_cmd.addArgs(args);
-        }
     }
 
     const exe_tests = b.addTest(.{
