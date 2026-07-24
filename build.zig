@@ -7,8 +7,11 @@ pub fn build(b: *std.Build) !void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
+    const board_salt = b.option([]const u8, "board-salt", "The salt to use when uploading to the server") orelse "salty";
+
     const options = b.addOptions();
     options.addOption([:0]const u8, "GAME_NAME", GAME_NAME);
+    options.addOption([]const u8, "BOARD_SALT", board_salt);
 
     const raylib_dep = b.dependency("raylib_zig", .{
         .target = target,
