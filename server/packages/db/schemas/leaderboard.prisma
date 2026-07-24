@@ -1,0 +1,8 @@
+model Score {
+    id   String @id @default(uuid())
+    name String @db.Char(3)
+    score Int @db.Integer()
+
+    @@map("public")
+}
+
