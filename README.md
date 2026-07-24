@@ -73,5 +73,4 @@
 - [ ] Day 3 (Winding Wingding day (The holy day (Sunday)))
     - [ ] Audio
     - [ ] Polish
-- [ ] Day 4 (Mondey-Wednesday)
     - [ ] Playtest
