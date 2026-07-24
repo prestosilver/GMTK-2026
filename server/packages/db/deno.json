@@ -1,0 +1,13 @@
+{
+  "name": "@scope/db",
+  "exports": "./index.ts",
+
+  "tasks": {
+    "db:generate": "deno run -A --env=.env npm:prisma generate",
+    "db:push": "deno run -A --env=.env npm:prisma db push"
+  },
+  "imports": {
+    "@prisma/client": "npm:@prisma/client@^7.9.0",
+    "prisma": "npm:prisma@^7.9.0"
+  }
+}
