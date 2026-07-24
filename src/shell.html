@@ -57,6 +57,10 @@
         <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
     </div>
     <script type='text/javascript'>
+      function sendHighscore(name, score) {
+          console.log("Sending score for " + name + ": " + score);
+      }
+
       var statusElement = document.getElementById('status');
       var canvasElement = document.getElementById('canvas');
 
