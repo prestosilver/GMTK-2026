@@ -22,9 +22,17 @@ const OUTER_TRIPLE_RING = 0.47;
 darts_buffer: [MAX_DARTS]Dart = undefined,
 darts: std.ArrayList(Dart) = undefined,
 sprite: rl.Texture = undefined,
+throwing_dart: Dart = .{},
+throwing_phase: enum { place, aim } = .place,
+throwing_time: f64 = 0.0,
+score: u32 = 301,
+
+games: u32 = 0,
 
 pub fn setup(self: *Board) void {
-    self.darts = .initBuffer(&self.darts_buffer);
+    self.* = .{
+        .darts = .initBuffer(&self.darts_buffer),
+    };
 }
 
 pub fn throwDart(self: *Board, shop: *Shop, bounds: rl.Rectangle, position: rl.Vector2) void {
@@ -32,7 +40,6 @@ pub fn throwDart(self: *Board, shop: *Shop, bounds: rl.Rectangle, position: rl.V
         return;
 
     var points: u32 = 0;
-
     const center: rl.Vector2 = .{
         .x = bounds.x + bounds.width / 2,
         .y = bounds.y + bounds.height / 2,
@@ -74,7 +81,16 @@ pub fn throwDart(self: *Board, shop: *Shop, bounds: rl.Rectangle, position: rl.V
         dart_distance <= (bounds.width / 2 * OUTER_DOUBLE_RING))
         points *= 2;
 
-    std.log.debug("Scord {} points", .{points});
+    const old = self.score;
+
+    if (points == self.score) {
+        self.score = 301;
+        self.games += 1;
+    } else if (self.score > points)
+        self.score -= points;
+
+    if (self.score == 1)
+        self.score = old;
 
     shop.money += points;
 
@@ -86,9 +102,31 @@ pub fn throwDart(self: *Board, shop: *Shop, bounds: rl.Rectangle, position: rl.V
 pub fn update(self: *Board, dt: f64, shop: *Shop, bounds: rl.Rectangle) !void {
     const mouse = rl.getMousePosition();
 
+    if (self.throwing_phase == .aim)
+        self.throwing_time += dt;
+
     if (rl.checkCollisionPointRec(mouse, bounds))
         if (rl.isMouseButtonPressed(.left))
-            self.throwDart(shop, bounds, rl.getMousePosition());
+            switch (self.throwing_phase) {
+                .place => {
+                    self.throwing_phase = .aim;
+                    self.throwing_time = 0.0;
+                },
+                .aim => {
+                    const throwing_mult = std.math.pow(f32, @as(f32, @floatCast((1.0 + @sin(self.throwing_time * std.math.pi)))) * 0.5, 5.0);
+                    const throwing_radius = (100.0 - @as(f32, @floatCast(throwing_mult * 100.0)));
+
+                    const angle = @as(f32, @floatFromInt(rl.getRandomValue(0, 100))) / 100.0;
+                    const mag = std.math.sqrt(@as(f32, @floatFromInt(rl.getRandomValue(0, 100))) / 100.0) * throwing_radius;
+
+                    self.throwDart(shop, bounds, .{
+                        .x = self.throwing_dart.position.x - bounds.x + @sin(angle) * mag,
+                        .y = self.throwing_dart.position.y - bounds.y + @cos(angle) * mag,
+                    });
+
+                    self.throwing_phase = .place;
+                },
+            };
 
     for (self.darts.items) |*dart|
         try dart.update(dt);
@@ -103,35 +141,17 @@ pub fn draw(self: *const Board, bounds: rl.Rectangle) void {
         .white,
     );
 
-    // {
-    //     // TODO: replace with a real sprite
-    //     const center: rl.Vector2 = .{
-    //         .x = bounds.x + bounds.width * 0.5,
-    //         .y = bounds.y + bounds.width * 0.5,
-    //     };
-
-    //     rl.drawCircleV(center, bounds.width * 0.5, .black);
-    //     rl.drawCircleV(center, bounds.width * 0.5 * 0.75, .dark_green);
-    //     rl.drawCircleV(center, bounds.width * 0.5 * 0.028, .red);
-
-    //     for (0..20) |div| {
-    //         const angle = (@as(f32, @floatFromInt(div)) - 0.5) / 20.0 * std.math.pi * 2.0;
-    //         rl.drawLineV(center, .{
-    //             .x = bounds.width * 0.5 + @sin(angle) * bounds.width * 0.5,
-    //             .y = bounds.height * 0.5 - @cos(angle) * bounds.height * 0.5,
-    //         }, .black);
-    //     }
-
-    //     rl.drawCircleLinesV(center, bounds.width * 0.5 * INNER_DOUBLE_RING, .black);
-    //     rl.drawCircleLinesV(center, bounds.width * 0.5 * OUTER_DOUBLE_RING, .black);
-
-    //     rl.drawCircleLinesV(center, bounds.width * 0.5 * INNER_TRIPLE_RING, .black);
-    //     rl.drawCircleLinesV(center, bounds.width * 0.5 * OUTER_TRIPLE_RING, .black);
-
-    //     rl.drawCircleLinesV(center, bounds.width * 0.5 * BULL_RADIUS, .black);
-    //     rl.drawCircleLinesV(center, bounds.width * 0.5 * DOUBLE_BULL_RADIUS, .black);
-    // }
-
     for (self.darts.items) |dart|
-        dart.draw();
+        dart.draw(.{
+            .x = bounds.x,
+            .y = bounds.y,
+        });
+
+    const throwing_mult = std.math.pow(f32, @floatCast((1.0 + @sin(self.throwing_time * std.math.pi)) * 0.5), 5.0);
+    const throwing_radius = (100.0 - @as(f32, @floatCast(throwing_mult * 100.0)));
+
+    self.throwing_dart.draw(.{ .x = 0, .y = 0 });
+
+    if (self.throwing_phase == .aim)
+        rl.drawCircleLinesV(self.throwing_dart.position, throwing_radius, .white);
 }

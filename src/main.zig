@@ -42,8 +42,7 @@ var state: State = .title;
 var board: Board = .{};
 var shop: Shop = .{};
 
-var throwing_dart: Dart = .{};
-
+// aim is accuracy circle
 var transition_timer: f64 = 0.0;
 
 const TITLE_BOARD_BOUNDS: rl.Rectangle = .{
@@ -113,17 +112,23 @@ pub fn main() !void {
 
     setState(.title);
 
+    rl.hideCursor();
+
     while (!rl.windowShouldClose()) {
         const dt = rl.getFrameTime();
-        transition_timer += dt;
+        transition_timer += dt / 2.0;
         transition_timer = @min(1.0, transition_timer);
+
+        if (board.throwing_phase == .place) {
+            board.throwing_dart.position = rl.getMousePosition();
+        }
 
         // update state
         switch (state) {
             .title => {
-                if (rl.isMouseButtonPressed(.left)) {
+                try board.update(dt, &shop, TITLE_BOARD_BOUNDS);
+                if (board.darts.items.len > 0)
                     setState(.game);
-                }
             },
             .game => {
                 try board.update(dt, &shop, BOARD_BOUNDS);
@@ -142,7 +147,12 @@ pub fn main() !void {
                 board.draw(TITLE_BOARD_BOUNDS);
             },
             .game => {
-                shop.draw(SHOP_BOUNDS);
+                shop.draw(.{
+                    .x = @floatCast(SHOP_BOUNDS.x + SHOP_BOUNDS.width * (1.0 - transition_timer)),
+                    .y = SHOP_BOUNDS.y,
+                    .width = SHOP_BOUNDS.width,
+                    .height = SHOP_BOUNDS.height,
+                });
                 board.draw(.{
                     .x = @floatCast(TITLE_BOARD_BOUNDS.x + (BOARD_BOUNDS.x - TITLE_BOARD_BOUNDS.x) * transition_timer),
                     .y = BOARD_BOUNDS.y,
