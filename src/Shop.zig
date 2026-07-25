@@ -7,10 +7,14 @@ const Board = @import("./Board.zig");
 
 const Upgrades = @import("Upgrades.zig");
 
+//enum indexed arr for number of purchased upgrades
+pub const UpgradeCounts = std.EnumArray(Upgrades.UpgradeType, u32);
+
 const Shop = @This();
 money: u64 = 0,
 y_offset: f32 = 0,
 board: *Board = undefined,
+purchased_upgrade_count: UpgradeCounts = UpgradeCounts.initFill(0),
 
 const SHOP_BG: rl.Color = .{ .r = 128, .g = 42, .b = 98, .a = 255 };
 const SHOP_TEXT: rl.Color = .{ .r = 0, .g = 0, .b = 0, .a = 255 };
@@ -30,22 +34,12 @@ var buttons: [Upgrades.UPGRADE_INFO.len]ShopButton = undefined;
 pub fn setup(self: *Shop, board: *Board) void {
     for (Upgrades.UPGRADE_INFO, 0..) |info, iter| {
         self.board = board;
-
-        var shop_btn = &buttons[iter];
-
+        const shop_btn = &buttons[iter];
         shop_btn.* = .{
             .upgrade = info,
             .button = Button{},
             .shop = self,
         };
-
-        //format text w/ buf being stored within button
-        shop_btn.button.text = std.fmt.bufPrintSentinel(
-            &shop_btn.button.text_buf,
-            "{s} ({d})",
-            .{ info.name, info.cost },
-            0,
-        ) catch unreachable;
     }
 }
 
@@ -117,9 +111,23 @@ pub fn draw(self: *const Shop, bounds: rl.Rectangle) void {
     );
 
     for (buttons, 0..) |btn, iter| {
+        updateButtonText(self, @intCast(iter));
         const idx = @as(f32, @floatFromInt(iter));
         btn.draw(getButtonBounds(bounds, idx));
     }
+}
+
+fn updateButtonText(self: *const Shop, idx: u32) void {
+    var shop_btn = &buttons[idx];
+    const UPG_DATA = Upgrades.UPGRADE_INFO[idx];
+
+    //format text w/ buf being stored within button
+    shop_btn.button.text = std.fmt.bufPrintSentinel(
+        &shop_btn.button.text_buf,
+        "{s} ({d})",
+        .{ UPG_DATA.name, Upgrades.getUpgradeCost(UPG_DATA, self) },
+        0,
+    ) catch unreachable;
 }
 
 fn getButtonBounds(shop_bounds: rl.Rectangle, idx: f32) rl.Rectangle {
