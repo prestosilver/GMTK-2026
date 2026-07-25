@@ -2,15 +2,18 @@ const std = @import("std");
 const rl = @import("raylib");
 const Upgrades = @import("../Upgrades.zig");
 const Shop = @import("../Shop.zig");
+const Board = @import("../Board.zig");
 const Button = @import("Button.zig");
+
 button: Button,
 upgrade: Upgrades.UpgradeData,
 shop: *Shop,
+board: *Board,
 
 const ShopButton = @This();
 
 fn on_click(self: *const ShopButton) void {
-    try Upgrades.applyUpgrade(self.upgrade, self.shop);
+    try Upgrades.applyUpgrade(self.upgrade, self.shop, self.board);
 }
 
 pub fn update(self: *ShopButton, bounds: rl.Rectangle) void {

@@ -19,20 +19,28 @@ const OUTER_DOUBLE_RING = 0.75;
 const INNER_TRIPLE_RING = 0.44;
 const OUTER_TRIPLE_RING = 0.47;
 
+darts_order_buffer: [MAX_DARTS]usize = undefined,
 darts_buffer: [MAX_DARTS]Dart = undefined,
+
+darts_order: std.ArrayList(usize) = undefined,
 darts: std.ArrayList(Dart) = undefined,
 sprite: rl.Texture = undefined,
 throwing_dart: Dart = .{},
 throwing_phase: enum { place, aim } = .place,
 throwing_time: f64 = 0.0,
 score: u32 = 301,
-
 games: u32 = 0,
+
+dart_monkey_per_second: f32 = 0.0,
+dart_monkey_counter: f64 = 0.0,
 
 pub fn setup(self: *Board) void {
     self.* = .{
         .darts = .initBuffer(&self.darts_buffer),
+        .darts_order = .initBuffer(&self.darts_order_buffer),
     };
+
+    self.throwing_dart.fall = true;
 }
 
 pub fn throwDart(self: *Board, shop: *Shop, bounds: rl.Rectangle, position: rl.Vector2) void {
@@ -97,6 +105,17 @@ pub fn throwDart(self: *Board, shop: *Shop, bounds: rl.Rectangle, position: rl.V
     self.darts.appendAssumeCapacity(.{
         .position = position,
     });
+
+    // 1000 darts visible
+    if (self.darts.items.len > 100) {
+        self.darts.items[self.darts.items.len - 100].fall = true;
+        self.darts.items[self.darts.items.len - 100].rot_vel = @as(f32, @floatFromInt(rl.getRandomValue(0, 100))) / 100.0 - 0.5;
+    }
+
+    self.darts_order.insertAssumeCapacity(for (self.darts_order.items, 0..) |dart, index| {
+        if (self.darts.items[dart].position.y < self.darts.getLast().position.y)
+            break index;
+    } else self.darts_order.items.len, self.darts.items.len - 1);
 }
 
 pub fn update(self: *Board, dt: f64, shop: *Shop, bounds: rl.Rectangle) !void {
@@ -104,6 +123,21 @@ pub fn update(self: *Board, dt: f64, shop: *Shop, bounds: rl.Rectangle) !void {
 
     if (self.throwing_phase == .aim)
         self.throwing_time += dt;
+
+    if (self.dart_monkey_per_second > 0.0)
+        self.dart_monkey_counter += dt;
+
+    while (self.dart_monkey_counter > 1.0 / self.dart_monkey_per_second) {
+        const x = @as(f32, @floatFromInt(rl.getRandomValue(0, 100))) / 100.0;
+        const y = @as(f32, @floatFromInt(rl.getRandomValue(0, 100))) / 100.0;
+
+        self.throwDart(shop, bounds, .{
+            .x = bounds.x + bounds.width * x,
+            .y = bounds.y + bounds.height * y,
+        });
+
+        self.dart_monkey_counter -= 1.0 / self.dart_monkey_per_second;
+    }
 
     if (rl.checkCollisionPointRec(mouse, bounds))
         if (rl.isMouseButtonPressed(.left))
@@ -116,7 +150,7 @@ pub fn update(self: *Board, dt: f64, shop: *Shop, bounds: rl.Rectangle) !void {
                     const throwing_mult = std.math.pow(f32, @as(f32, @floatCast((1.0 + @sin(self.throwing_time * std.math.pi)))) * 0.5, 5.0);
                     const throwing_radius = (100.0 - @as(f32, @floatCast(throwing_mult * 100.0)));
 
-                    const angle = @as(f32, @floatFromInt(rl.getRandomValue(0, 100))) / 100.0;
+                    const angle = @as(f32, @floatFromInt(rl.getRandomValue(0, 100))) / 100.0 * std.math.pi * 2;
                     const mag = std.math.sqrt(@as(f32, @floatFromInt(rl.getRandomValue(0, 100))) / 100.0) * throwing_radius;
 
                     self.throwDart(shop, bounds, .{
@@ -141,8 +175,8 @@ pub fn draw(self: *const Board, bounds: rl.Rectangle) void {
         .white,
     );
 
-    for (self.darts.items) |dart|
-        dart.draw(.{
+    for (self.darts_order.items) |dart_idx|
+        self.darts.items[dart_idx].draw(.{
             .x = bounds.x,
             .y = bounds.y,
         });

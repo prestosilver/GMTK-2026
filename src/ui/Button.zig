@@ -4,7 +4,7 @@ const rl = @import("raylib");
 const OnClickCallbackType = *const fn () void;
 
 const Button = @This();
-text_buf: [64:0]u8 = undefined,
+text_buf: [64]u8 = undefined,
 text: [:0]const u8 = "",
 btn_color: rl.Color = .{ .r = 0, .g = 148, .b = 121, .a = 255 },
 hover_color: rl.Color = .{ .r = 9, .g = 219, .b = 47, .a = 255 },

@@ -122,6 +122,9 @@ pub fn main() !void {
     Dart.dart_sprite = try rl.loadTexture("dart.png");
     defer Dart.dart_sprite.unload();
 
+    Dart.shadow_sprite = try rl.loadTexture("dart_shadow.png");
+    defer Dart.shadow_sprite.unload();
+
     sendHighscore("JEF", 32);
 
     setState(.title);
@@ -147,6 +150,9 @@ pub fn main() !void {
             .game => {
                 try board.update(dt, &shop, BOARD_BOUNDS);
                 try shop.update(dt, SHOP_BOUNDS);
+
+                if (board.darts.items.len >= board.darts.capacity)
+                    setState(.end);
             },
             .end => {
                 try leaderboard.update(dt);
