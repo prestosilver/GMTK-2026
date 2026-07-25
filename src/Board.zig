@@ -31,7 +31,7 @@ pub fn throwDart(self: *Board, shop: *Shop, bounds: rl.Rectangle, position: rl.V
     if (self.darts.items.len >= MAX_DARTS)
         return;
 
-    var points: u32 = 10;
+    var points: u32 = 0;
 
     const center: rl.Vector2 = .{
         .x = bounds.x + bounds.width / 2,
@@ -62,6 +62,9 @@ pub fn throwDart(self: *Board, shop: *Shop, bounds: rl.Rectangle, position: rl.V
 
     if (dart_distance < (bounds.width / 2 * DOUBLE_BULL_RADIUS))
         points = 50;
+
+    if (dart_distance > (bounds.width / 2 * OUTER_DOUBLE_RING))
+        points = 0;
 
     if (dart_distance >= (bounds.width / 2 * INNER_TRIPLE_RING) and
         dart_distance <= (bounds.width / 2 * OUTER_TRIPLE_RING))

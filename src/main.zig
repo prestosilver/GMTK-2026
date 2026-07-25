@@ -34,14 +34,24 @@ const SCREEN_HEIGHT = 675;
 const SHOP_X = 800; //pixels
 const SHOP_WIDTH = SCREEN_WIDTH - 800;
 
-const BG_COLOR: rl.Color = .{ .r = 72, .g = 25, .b = 89, .a = 255 };
+const BG_COLOR: rl.Color = .{ .r = 0, .g = 0, .b = 0, .a = 255 };
 
-var state: enum { game } = .game;
+const State = enum { title, game };
+var state: State = .title;
 
 var board: Board = .{};
 var shop: Shop = .{};
 
 var throwing_dart: Dart = .{};
+
+var transition_timer: f64 = 0.0;
+
+const TITLE_BOARD_BOUNDS: rl.Rectangle = .{
+    .x = (SCREEN_WIDTH - SCREEN_HEIGHT) * 0.5,
+    .y = 0,
+    .width = SCREEN_HEIGHT, // square
+    .height = SCREEN_HEIGHT,
+};
 
 const BOARD_BOUNDS: rl.Rectangle = .{
     .x = 0,
@@ -71,10 +81,21 @@ pub fn sendHighscore(name: *const [3]u8, score: u32) void {
     }
 }
 
-pub fn main() !void {
-    board.setup();
-    shop.setup();
+pub fn setState(new_state: State) void {
+    switch (new_state) {
+        .title => {
+            board.setup();
+        },
+        .game => {
+            shop.setup();
+        },
+    }
+    state = new_state;
 
+    transition_timer = 0.0;
+}
+
+pub fn main() !void {
     rl.initWindow(SCREEN_WIDTH, SCREEN_HEIGHT, build_options.GAME_NAME);
     defer rl.closeWindow();
 
@@ -85,13 +106,25 @@ pub fn main() !void {
     board.sprite = try rl.loadTexture("board.png");
     defer board.sprite.unload();
 
+    Dart.dart_sprite = try rl.loadTexture("dart.png");
+    defer Dart.dart_sprite.unload();
+
     sendHighscore("JEF", 32);
+
+    setState(.title);
 
     while (!rl.windowShouldClose()) {
         const dt = rl.getFrameTime();
+        transition_timer += dt;
+        transition_timer = @min(1.0, transition_timer);
 
         // update state
         switch (state) {
+            .title => {
+                if (rl.isMouseButtonPressed(.left)) {
+                    setState(.game);
+                }
+            },
             .game => {
                 try board.update(dt, &shop, BOARD_BOUNDS);
                 try shop.update(dt, SHOP_BOUNDS);
@@ -105,9 +138,17 @@ pub fn main() !void {
         rl.clearBackground(BG_COLOR);
 
         switch (state) {
+            .title => {
+                board.draw(TITLE_BOARD_BOUNDS);
+            },
             .game => {
-                board.draw(BOARD_BOUNDS);
                 shop.draw(SHOP_BOUNDS);
+                board.draw(.{
+                    .x = @floatCast(TITLE_BOARD_BOUNDS.x + (BOARD_BOUNDS.x - TITLE_BOARD_BOUNDS.x) * transition_timer),
+                    .y = BOARD_BOUNDS.y,
+                    .width = BOARD_BOUNDS.width,
+                    .height = BOARD_BOUNDS.height,
+                });
             },
         }
     }
