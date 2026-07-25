@@ -59,6 +59,7 @@ pub fn build(b: *std.Build) !void {
             .embed_paths = &.{
                 .{ .src_path = "assets/board.png", .virtual_path = "board.png" },
                 .{ .src_path = "assets/dart.png", .virtual_path = "dart.png" },
+                .{ .src_path = "assets/HopeGold.ttf", .virtual_path = "HopeGold.ttf" },
             },
         });
         b.getInstallStep().dependOn(emcc_step);
@@ -84,6 +85,9 @@ pub fn build(b: *std.Build) !void {
 
         const dart_image_step = b.addInstallFile(b.path("assets/dart.png"), "bin/dart.png");
         b.getInstallStep().dependOn(&dart_image_step.step);
+
+        const font_step = b.addInstallFile(b.path("assets/HopeGold.ttf"), "bin/HopeGold.ttf");
+        b.getInstallStep().dependOn(&font_step.step);
 
         const run_cmd = b.addRunArtifact(exe);
         run_cmd.cwd = b.path("zig-out/bin");
