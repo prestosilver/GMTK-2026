@@ -16,7 +16,7 @@ fn on_click(self: *const ShopButton) void {
 pub fn update(self: *ShopButton, bounds: rl.Rectangle) void {
     try self.button.update(bounds);
 
-    //not my favorite thing. Only thing I could think of tho bc no closures.
+    //not my favorite thing. Only thing I could think of tho bc no closures. (My react brain hates this)
     if (self.button._is_clicked) on_click(self);
 }
 
