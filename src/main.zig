@@ -4,6 +4,7 @@ const build_options = @import("build_options");
 
 const Board = @import("Board.zig");
 const Dart = @import("Dart.zig");
+const Shop = @import("Shop.zig");
 
 const SCREEN_WIDTH = 1200;
 const SCREEN_HEIGHT = 675;
@@ -11,6 +12,7 @@ const SCREEN_HEIGHT = 675;
 var state: enum { game } = .game;
 
 var board: Board = .{};
+var shop: Shop = .{};
 
 var throwing_dart: Dart = .{};
 
