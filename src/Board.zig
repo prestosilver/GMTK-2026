@@ -37,7 +37,7 @@ pub fn throwDart(self: *Board, shop: *Shop, bounds: rl.Rectangle, position: rl.V
     });
 }
 
-pub fn update(self: *Board, shop: *Shop, bounds: rl.Rectangle, dt: f64) !void {
+pub fn update(self: *Board, dt: f64, shop: *Shop, bounds: rl.Rectangle) !void {
     if (rl.isMouseButtonPressed(.left))
         self.throwDart(shop, bounds, rl.getMousePosition());
 

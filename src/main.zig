@@ -9,12 +9,29 @@ const Shop = @import("Shop.zig");
 const SCREEN_WIDTH = 1200;
 const SCREEN_HEIGHT = 675;
 
+const SHOP_X = 800; //pixels
+const SHOP_WIDTH = SCREEN_WIDTH - 800;
+
 var state: enum { game } = .game;
 
 var board: Board = .{};
 var shop: Shop = .{};
 
 var throwing_dart: Dart = .{};
+
+const BOARD_BOUNDS: rl.Rectangle = .{
+    .x = 0,
+    .y = 0,
+    .width = SCREEN_HEIGHT, // square
+    .height = SCREEN_HEIGHT,
+};
+
+const SHOP_BOUNDS: rl.Rectangle = .{
+    .x = SHOP_X,
+    .y = 0,
+    .width = SHOP_WIDTH,
+    .height = SCREEN_HEIGHT,
+};
 
 pub fn sendHighscore(name: *const [3]u8, score: u32) void {
     switch (@import("builtin").cpu.arch) {
@@ -32,6 +49,7 @@ pub fn sendHighscore(name: *const [3]u8, score: u32) void {
 
 pub fn main() !void {
     board.setup();
+    shop.setup();
 
     rl.initWindow(SCREEN_WIDTH, SCREEN_HEIGHT, build_options.GAME_NAME);
     defer rl.closeWindow();
@@ -47,17 +65,12 @@ pub fn main() !void {
 
     while (!rl.windowShouldClose()) {
         const dt = rl.getFrameTime();
-        const board_bounds: rl.Rectangle = .{
-            .x = 0,
-            .y = 0,
-            .width = SCREEN_HEIGHT, // square
-            .height = SCREEN_HEIGHT,
-        };
 
         // update state
         switch (state) {
             .game => {
-                try board.update(&shop, board_bounds, dt);
+                try board.update(dt, &shop, BOARD_BOUNDS);
+                try shop.update(dt, SHOP_BOUNDS);
             },
         }
 
@@ -69,7 +82,8 @@ pub fn main() !void {
 
         switch (state) {
             .game => {
-                board.draw(board_bounds);
+                board.draw(BOARD_BOUNDS);
+                shop.draw(SHOP_BOUNDS);
             },
         }
     }
