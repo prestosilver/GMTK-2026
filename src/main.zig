@@ -34,6 +34,8 @@ const SCREEN_HEIGHT = 675;
 const SHOP_X = 800; //pixels
 const SHOP_WIDTH = SCREEN_WIDTH - 800;
 
+const BG_COLOR: rl.Color = .{ .r = 72, .g = 25, .b = 89, .a = 255 };
+
 var state: enum { game } = .game;
 
 var board: Board = .{};
@@ -80,8 +82,8 @@ pub fn main() !void {
     rl.setExitKey(.null);
 
     // Load a texture
-    // const thing_image = try rl.loadTexture("thing.png");
-    // defer thing_image.unload();
+    board.sprite = try rl.loadTexture("board.png");
+    defer board.sprite.unload();
 
     sendHighscore("JEF", 32);
 
@@ -100,7 +102,7 @@ pub fn main() !void {
         rl.beginDrawing();
         defer rl.endDrawing();
 
-        rl.clearBackground(.white);
+        rl.clearBackground(BG_COLOR);
 
         switch (state) {
             .game => {

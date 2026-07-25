@@ -21,6 +21,7 @@ const OUTER_TRIPLE_RING = 0.47;
 
 darts_buffer: [MAX_DARTS]Dart = undefined,
 darts: std.ArrayList(Dart) = undefined,
+sprite: rl.Texture = undefined,
 
 pub fn setup(self: *Board) void {
     self.darts = .initBuffer(&self.darts_buffer);
@@ -91,34 +92,42 @@ pub fn update(self: *Board, dt: f64, shop: *Shop, bounds: rl.Rectangle) !void {
 }
 
 pub fn draw(self: *const Board, bounds: rl.Rectangle) void {
-    {
-        // TODO: replace with a real sprite
-        const center: rl.Vector2 = .{
-            .x = bounds.x + bounds.width * 0.5,
-            .y = bounds.y + bounds.width * 0.5,
-        };
+    self.sprite.drawPro(
+        .{ .x = 0, .y = 0, .width = 167, .height = 167 },
+        bounds,
+        .{ .x = 0.5, .y = 0.5 },
+        0.0,
+        .white,
+    );
 
-        rl.drawCircleV(center, bounds.width * 0.5, .black);
-        rl.drawCircleV(center, bounds.width * 0.5 * 0.75, .dark_green);
-        rl.drawCircleV(center, bounds.width * 0.5 * 0.028, .red);
+    // {
+    //     // TODO: replace with a real sprite
+    //     const center: rl.Vector2 = .{
+    //         .x = bounds.x + bounds.width * 0.5,
+    //         .y = bounds.y + bounds.width * 0.5,
+    //     };
 
-        for (0..20) |div| {
-            const angle = (@as(f32, @floatFromInt(div)) - 0.5) / 20.0 * std.math.pi * 2.0;
-            rl.drawLineV(center, .{
-                .x = bounds.width * 0.5 + @sin(angle) * bounds.width * 0.5,
-                .y = bounds.height * 0.5 - @cos(angle) * bounds.height * 0.5,
-            }, .black);
-        }
+    //     rl.drawCircleV(center, bounds.width * 0.5, .black);
+    //     rl.drawCircleV(center, bounds.width * 0.5 * 0.75, .dark_green);
+    //     rl.drawCircleV(center, bounds.width * 0.5 * 0.028, .red);
 
-        rl.drawCircleLinesV(center, bounds.width * 0.5 * INNER_DOUBLE_RING, .black);
-        rl.drawCircleLinesV(center, bounds.width * 0.5 * OUTER_DOUBLE_RING, .black);
+    //     for (0..20) |div| {
+    //         const angle = (@as(f32, @floatFromInt(div)) - 0.5) / 20.0 * std.math.pi * 2.0;
+    //         rl.drawLineV(center, .{
+    //             .x = bounds.width * 0.5 + @sin(angle) * bounds.width * 0.5,
+    //             .y = bounds.height * 0.5 - @cos(angle) * bounds.height * 0.5,
+    //         }, .black);
+    //     }
 
-        rl.drawCircleLinesV(center, bounds.width * 0.5 * INNER_TRIPLE_RING, .black);
-        rl.drawCircleLinesV(center, bounds.width * 0.5 * OUTER_TRIPLE_RING, .black);
+    //     rl.drawCircleLinesV(center, bounds.width * 0.5 * INNER_DOUBLE_RING, .black);
+    //     rl.drawCircleLinesV(center, bounds.width * 0.5 * OUTER_DOUBLE_RING, .black);
 
-        rl.drawCircleLinesV(center, bounds.width * 0.5 * BULL_RADIUS, .black);
-        rl.drawCircleLinesV(center, bounds.width * 0.5 * DOUBLE_BULL_RADIUS, .black);
-    }
+    //     rl.drawCircleLinesV(center, bounds.width * 0.5 * INNER_TRIPLE_RING, .black);
+    //     rl.drawCircleLinesV(center, bounds.width * 0.5 * OUTER_TRIPLE_RING, .black);
+
+    //     rl.drawCircleLinesV(center, bounds.width * 0.5 * BULL_RADIUS, .black);
+    //     rl.drawCircleLinesV(center, bounds.width * 0.5 * DOUBLE_BULL_RADIUS, .black);
+    // }
 
     for (self.darts.items) |dart|
         dart.draw();

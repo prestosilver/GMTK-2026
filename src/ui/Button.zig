@@ -6,9 +6,9 @@ const OnClickCallbackType = *const fn () void;
 const Button = @This();
 text_buf: [64:0]u8 = undefined,
 text: [:0]const u8 = "",
-btn_color: rl.Color = .white,
-hover_color: rl.Color = .gray,
-txt_color: rl.Color = .black,
+btn_color: rl.Color = .{ .r = 0, .g = 148, .b = 121, .a = 255 },
+hover_color: rl.Color = .{ .r = 9, .g = 219, .b = 47, .a = 255 },
+txt_color: rl.Color = .{ .r = 0, .g = 55, .b = 110, .a = 255 },
 on_click: ?OnClickCallbackType = null,
 _is_hovered: bool = false,
 _is_clicked: bool = false,

@@ -52,7 +52,7 @@ pub fn build(b: *std.Build) !void {
             .install_dir = install_dir,
             .shell_file_path = b.path("src/shell.html"),
             .embed_paths = &.{
-                // .{ .src_path = "assets/thing.png", .virtual_path = "thing.png" },
+                .{ .src_path = "assets/board.png", .virtual_path = "board.png" },
             },
         });
         b.getInstallStep().dependOn(emcc_step);
@@ -73,9 +73,8 @@ pub fn build(b: *std.Build) !void {
         });
         b.installArtifact(exe);
 
-        // Add an image
-        // const thing_image_step = b.addInstallFile(b.path("assets/thing.png"), "bin/thing.png");
-        // b.getInstallStep().dependOn(&thing_image_step.step);
+        const board_image_step = b.addInstallFile(b.path("assets/board.png"), "bin/board.png");
+        b.getInstallStep().dependOn(&board_image_step.step);
 
         const run_cmd = b.addRunArtifact(exe);
         run_cmd.cwd = b.path("zig-out/bin");

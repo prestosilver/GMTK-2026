@@ -10,6 +10,9 @@ const Shop = @This();
 money: u64 = 0,
 y_offset: f32 = 0,
 
+const SHOP_BG: rl.Color = .{ .r = 128, .g = 42, .b = 98, .a = 255 };
+const SHOP_TEXT: rl.Color = .{ .r = 0, .g = 0, .b = 0, .a = 255 };
+
 const SHOP_PADDING = (.{ .x = 20, .y = 20 });
 const BUTTON_HEIGHT = 50;
 const TITLE_FONT_SIZE = 35;
@@ -46,7 +49,7 @@ pub fn update(self: *Shop, dt: f64, bounds: rl.Rectangle) !void {
 pub fn draw(self: *const Shop, bounds: rl.Rectangle) void {
 
     //background panel
-    rl.drawRectangleRec(bounds, .light_gray);
+    rl.drawRectangleRec(bounds, SHOP_BG);
 
     const START_X = bounds.x + SHOP_PADDING.x;
     const START_Y = bounds.y + SHOP_PADDING.y;
@@ -57,7 +60,7 @@ pub fn draw(self: *const Shop, bounds: rl.Rectangle) void {
         @intFromFloat(START_X),
         @intFromFloat(START_Y),
         TITLE_FONT_SIZE,
-        .black,
+        SHOP_TEXT,
     );
 
     //draw money/points
@@ -69,7 +72,7 @@ pub fn draw(self: *const Shop, bounds: rl.Rectangle) void {
     const text = std.fmt.bufPrintSentinel(&money_fmt, "Points: {d}", .{self.money}, 0) catch unreachable;
 
     //Draw moneys
-    rl.drawText(text, @intFromFloat(bounds.x + SHOP_PADDING.x), @intFromFloat(START_Y + TITLE_FONT_SIZE), MONEY_FONT_SIZE, .black);
+    rl.drawText(text, @intFromFloat(bounds.x + SHOP_PADDING.x), @intFromFloat(START_Y + TITLE_FONT_SIZE), MONEY_FONT_SIZE, SHOP_TEXT);
 
     for (buttons, 0..) |btn, iter| {
         const idx = @as(f32, @floatFromInt(iter));
