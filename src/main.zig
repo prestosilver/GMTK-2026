@@ -73,7 +73,7 @@ pub fn sendHighscore(name: *const [3]u8, score: u32) void {
 
 pub fn main() !void {
     board.setup();
-    shop.setup();
+    shop.setup(&board);
 
     rl.initWindow(SCREEN_WIDTH, SCREEN_HEIGHT, build_options.GAME_NAME);
     defer rl.closeWindow();
