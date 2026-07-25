@@ -25,7 +25,6 @@ pub fn update(self: *Button, bounds: rl.Rectangle) !void {
         if (rl.isMouseButtonPressed(.left)) {
             self._is_clicked = true;
             if (self.on_click) |cb| {
-                std.log.warn("on click..", .{});
                 cb();
             }
         } else self._is_clicked = false;

@@ -87,7 +87,7 @@ pub fn setState(new_state: State) void {
             board.setup();
         },
         .game => {
-            shop.setup();
+            shop.setup(&board);
         },
     }
     state = new_state;
