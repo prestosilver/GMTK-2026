@@ -9,12 +9,29 @@ const Shop = @import("Shop.zig");
 const SCREEN_WIDTH = 1200;
 const SCREEN_HEIGHT = 675;
 
+const SHOP_X = 800; //pixels
+const SHOP_WIDTH = SCREEN_WIDTH - 800;
+
 var state: enum { game } = .game;
 
 var board: Board = .{};
 var shop: Shop = .{};
 
 var throwing_dart: Dart = .{};
+
+const board_bounds: rl.Rectangle = .{
+    .x = 0,
+    .y = 0,
+    .width = SCREEN_HEIGHT, // square
+    .height = SCREEN_HEIGHT,
+};
+
+const shop_bounds: rl.Rectangle = .{
+    .x = SHOP_X,
+    .y = 0,
+    .width = SHOP_WIDTH,
+    .height = SCREEN_HEIGHT,
+};
 
 pub fn sendHighscore(name: *const [3]u8, score: u32) void {
     switch (@import("builtin").cpu.arch) {
@@ -32,6 +49,7 @@ pub fn sendHighscore(name: *const [3]u8, score: u32) void {
 
 pub fn main() !void {
     board.setup();
+    shop.setup();
 
     rl.initWindow(SCREEN_WIDTH, SCREEN_HEIGHT, build_options.GAME_NAME);
     defer rl.closeWindow();
@@ -52,6 +70,7 @@ pub fn main() !void {
         switch (state) {
             .game => {
                 try board.update(dt);
+                try shop.update(dt, shop_bounds);
             },
         }
 
@@ -63,14 +82,8 @@ pub fn main() !void {
 
         switch (state) {
             .game => {
-                const board_bounds: rl.Rectangle = .{
-                    .x = 0,
-                    .y = 0,
-                    .width = SCREEN_HEIGHT, // square
-                    .height = SCREEN_HEIGHT,
-                };
-
                 board.draw(board_bounds);
+                shop.draw(shop_bounds);
             },
         }
     }
