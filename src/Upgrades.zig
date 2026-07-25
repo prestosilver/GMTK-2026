@@ -1,5 +1,6 @@
 const std = @import("std");
 
+const Board = @import("Board.zig");
 const Shop = @import("Shop.zig");
 
 //Name / Cost
@@ -43,7 +44,7 @@ pub fn getUpgradeCost(upg: UpgradeData, shop: *const Shop) u32 {
 
 //TODO impl upgrade logic
 //all upgrade logic goes here...
-pub fn applyUpgrade(upg: UpgradeData, shop: *Shop) !void {
+pub fn applyUpgrade(upg: UpgradeData, shop: *Shop, board: *Board) !void {
     const PLR_MONEY = shop.money;
     const COST = getUpgradeCost(upg, shop);
 
@@ -58,7 +59,7 @@ pub fn applyUpgrade(upg: UpgradeData, shop: *Shop) !void {
 
     switch (upg.type) {
         .Monkey => {
-            std.log.warn("monke upgrade", .{});
+            board.dart_monkey_per_second += 5.0;
         },
         .Power => {
             std.log.warn("Power up (my ass)", .{});

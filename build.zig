@@ -59,6 +59,7 @@ pub fn build(b: *std.Build) !void {
             .embed_paths = &.{
                 .{ .src_path = "assets/board.png", .virtual_path = "board.png" },
                 .{ .src_path = "assets/dart.png", .virtual_path = "dart.png" },
+                .{ .src_path = "assets/dart_shadow.png", .virtual_path = "dart_shadow.png" },
                 .{ .src_path = "assets/HopeGold.ttf", .virtual_path = "HopeGold.ttf" },
                 .{ .src_path = "assets/name_arrow.png", .virtual_path = "name_arrow.png" },
             },
@@ -89,6 +90,9 @@ pub fn build(b: *std.Build) !void {
 
         const name_arrow_step = b.addInstallFile(b.path("assets/name_arrow.png"), "bin/name_arrow.png");
         b.getInstallStep().dependOn(&name_arrow_step.step);
+
+        const darts_image_step = b.addInstallFile(b.path("assets/dart_shadow.png"), "bin/dart_shadow.png");
+        b.getInstallStep().dependOn(&darts_image_step.step);
 
         const font_step = b.addInstallFile(b.path("assets/HopeGold.ttf"), "bin/HopeGold.ttf");
         b.getInstallStep().dependOn(&font_step.step);

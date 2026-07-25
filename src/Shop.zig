@@ -23,9 +23,9 @@ const SHOP_TEXT: rl.Color = .{ .r = 0, .g = 0, .b = 0, .a = 255 };
 const SHOP_PADDING = (.{ .x = 20, .y = 20 });
 const BUTTON_HEIGHT = 50;
 
-const DARTS_FONT_SIZE = 35;
-const TITLE_FONT_SIZE = 35;
-const MONEY_FONT_SIZE = 24;
+const DARTS_FONT_SIZE = 66;
+const TITLE_FONT_SIZE = 44;
+const MONEY_FONT_SIZE = 22;
 
 const SHOP_SCROLL_SPEED = 50;
 
@@ -42,6 +42,7 @@ pub fn setup(self: *Shop, board: *Board) void {
             .upgrade = info,
             .button = Button{},
             .shop = self,
+            .board = board,
         };
     }
 

@@ -125,6 +125,11 @@ pub fn main() !void {
     leaderboard.cursor_texture = try rl.loadTexture("name_arrow.png");
     defer leaderboard.cursor_texture.unload();
 
+    Dart.shadow_sprite = try rl.loadTexture("dart_shadow.png");
+    defer Dart.shadow_sprite.unload();
+
+    sendHighscore("JEF", 32);
+
     setState(.end);
 
     rl.hideCursor();
@@ -148,6 +153,9 @@ pub fn main() !void {
             .game => {
                 try board.update(dt, &shop, BOARD_BOUNDS);
                 try shop.update(dt, SHOP_BOUNDS);
+
+                if (board.darts.items.len >= board.darts.capacity)
+                    setState(.end);
             },
             .end => {
                 leaderboard.update(dt);
