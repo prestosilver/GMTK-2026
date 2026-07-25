@@ -24,7 +24,7 @@ pub fn sendHighscore(name: *const [3]u8, score: u32) void {
                 \\sendHighscore(UTF8ToString($0), $1);
             ), .{ &name, score });
         },
-        else => |platform| std.log.warn("unimplemented: sendHighscore({s}, {}) on {s}", .{ name, score, @tagName(platform) }),
+        else => |platform| std.log.warn("unimplemented: sendHighscore({s}, {}) on {s} with salt `{s}`", .{ name, score, @tagName(platform), build_options.BOARD_SALT }),
     }
 }
 

@@ -5,7 +5,7 @@ const Dart = @import("Dart.zig");
 
 const Board = @This();
 
-const MAX_DARTS = 1024;
+const MAX_DARTS = 1_000_000;
 
 darts_buffer: [MAX_DARTS]Dart = undefined,
 darts: std.ArrayList(Dart) = undefined,
@@ -14,7 +14,16 @@ pub fn setup(self: *Board) void {
     self.darts = .initBuffer(&self.darts_buffer);
 }
 
+pub fn throwDart(self: *Board, position: rl.Vector2) void {
+    self.darts.appendAssumeCapacity(.{
+        .position = position,
+    });
+}
+
 pub fn update(self: *Board, dt: f64) !void {
+    if (rl.isMouseButtonPressed(.left))
+        self.throwDart(rl.getMousePosition());
+
     for (self.darts.items) |*dart|
         try dart.update(dt);
 }
