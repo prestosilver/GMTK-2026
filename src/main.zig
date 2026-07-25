@@ -47,11 +47,17 @@ pub fn main() !void {
 
     while (!rl.windowShouldClose()) {
         const dt = rl.getFrameTime();
+        const board_bounds: rl.Rectangle = .{
+            .x = 0,
+            .y = 0,
+            .width = SCREEN_HEIGHT, // square
+            .height = SCREEN_HEIGHT,
+        };
 
         // update state
         switch (state) {
             .game => {
-                try board.update(dt);
+                try board.update(&shop, board_bounds, dt);
             },
         }
 
@@ -63,13 +69,6 @@ pub fn main() !void {
 
         switch (state) {
             .game => {
-                const board_bounds: rl.Rectangle = .{
-                    .x = 0,
-                    .y = 0,
-                    .width = SCREEN_HEIGHT, // square
-                    .height = SCREEN_HEIGHT,
-                };
-
                 board.draw(board_bounds);
             },
         }
