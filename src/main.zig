@@ -29,16 +29,13 @@ pub const std_options: std.Options = .{
     .logFn = customLogFn,
 };
 
-const SCREEN_WIDTH = 1200;
-const SCREEN_HEIGHT = 675;
-
 const SHOP_X = 800; //pixels
-const SHOP_WIDTH = SCREEN_WIDTH - 800;
+const SHOP_WIDTH = build_options.SCREEN_WIDTH - 800;
 
 const BG_COLOR: rl.Color = .{ .r = 0, .g = 0, .b = 0, .a = 255 };
 
 const State = enum { title, game, end };
-var state: State = .end;
+var state: State = .title;
 
 var board: Board = .{};
 var shop: Shop = .{};
@@ -48,38 +45,38 @@ var leaderboard: Leaderboard = .{};
 var transition_timer: f64 = 0.0;
 
 const TITLE_BOARD_BOUNDS: rl.Rectangle = .{
-    .x = (SCREEN_WIDTH - SCREEN_HEIGHT) * 0.5,
+    .x = (build_options.SCREEN_WIDTH - build_options.SCREEN_HEIGHT) * 0.5,
     .y = 0,
-    .width = SCREEN_HEIGHT, // square
-    .height = SCREEN_HEIGHT,
+    .width = build_options.SCREEN_HEIGHT, // square
+    .height = build_options.SCREEN_HEIGHT,
 };
 
 const END_BOARD_BOUNDS: rl.Rectangle = .{
-    .x = (SCREEN_WIDTH - SCREEN_HEIGHT) * 0.5,
+    .x = (build_options.SCREEN_WIDTH - build_options.SCREEN_HEIGHT) * 0.5,
     .y = 0,
-    .width = SCREEN_HEIGHT, // square
-    .height = SCREEN_HEIGHT,
+    .width = build_options.SCREEN_HEIGHT, // square
+    .height = build_options.SCREEN_HEIGHT,
 };
 
 const BOARD_BOUNDS: rl.Rectangle = .{
     .x = 0,
     .y = 0,
-    .width = SCREEN_HEIGHT, // square
-    .height = SCREEN_HEIGHT,
+    .width = build_options.SCREEN_HEIGHT, // square
+    .height = build_options.SCREEN_HEIGHT,
 };
 
 const SHOP_BOUNDS: rl.Rectangle = .{
     .x = SHOP_X,
     .y = 0,
     .width = SHOP_WIDTH,
-    .height = SCREEN_HEIGHT,
+    .height = build_options.SCREEN_HEIGHT,
 };
 
 const LEADERBORAD_BOUNDS: rl.Rectangle = .{
     .x = 0,
     .y = 0,
-    .width = SCREEN_HEIGHT, // square
-    .height = SCREEN_HEIGHT,
+    .width = build_options.SCREEN_HEIGHT, // square
+    .height = build_options.SCREEN_HEIGHT,
 };
 
 pub fn sendHighscore(name: *const [3]u8, score: u32) void {
@@ -112,7 +109,7 @@ pub fn setState(new_state: State) void {
 }
 
 pub fn main() !void {
-    rl.initWindow(SCREEN_WIDTH, SCREEN_HEIGHT, build_options.GAME_NAME);
+    rl.initWindow(build_options.SCREEN_WIDTH, build_options.SCREEN_HEIGHT, build_options.GAME_NAME);
     defer rl.closeWindow();
 
     rl.setTargetFPS(60);
@@ -151,7 +148,9 @@ pub fn main() !void {
                 try board.update(dt, &shop, BOARD_BOUNDS);
                 try shop.update(dt, SHOP_BOUNDS);
             },
-            .end => {},
+            .end => {
+                try leaderboard.update(dt);
+            },
         }
 
         // draw frame

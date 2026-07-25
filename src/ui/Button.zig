@@ -16,7 +16,7 @@ _is_clicked: bool = false,
 const FONT_SIZE = 20;
 const TEXT_PADDING = 20;
 
-pub fn update(self: *Button, bounds: rl.Rectangle) !void {
+pub fn update(self: *Button, bounds: rl.Rectangle) void {
     const mouse = rl.getMousePosition();
 
     self._is_hovered = rl.checkCollisionPointRec(mouse, bounds);
