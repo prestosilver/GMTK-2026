@@ -53,6 +53,7 @@ pub fn build(b: *std.Build) !void {
             .shell_file_path = b.path("src/shell.html"),
             .embed_paths = &.{
                 .{ .src_path = "assets/board.png", .virtual_path = "board.png" },
+                .{ .src_path = "assets/dart.png", .virtual_path = "dart.png" },
             },
         });
         b.getInstallStep().dependOn(emcc_step);
@@ -75,6 +76,9 @@ pub fn build(b: *std.Build) !void {
 
         const board_image_step = b.addInstallFile(b.path("assets/board.png"), "bin/board.png");
         b.getInstallStep().dependOn(&board_image_step.step);
+
+        const dart_image_step = b.addInstallFile(b.path("assets/dart.png"), "bin/dart.png");
+        b.getInstallStep().dependOn(&dart_image_step.step);
 
         const run_cmd = b.addRunArtifact(exe);
         run_cmd.cwd = b.path("zig-out/bin");
