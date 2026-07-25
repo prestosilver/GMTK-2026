@@ -6,6 +6,28 @@ const Board = @import("Board.zig");
 const Dart = @import("Dart.zig");
 const Shop = @import("Shop.zig");
 
+pub fn customLogFn(
+    comptime level: std.log.Level,
+    comptime _: @TypeOf(.EnumLiteral),
+    comptime format: []const u8,
+    args: anytype,
+) void {
+    var buf: [1024]u8 = undefined;
+    const log: [*c]const u8 = std.fmt.bufPrintZ(&buf, format, args) catch unreachable;
+
+    rl.traceLog(switch (level) {
+        .debug => .debug,
+        .info => .info,
+        .warn => .warning,
+        .err => .err,
+    }, "%s", .{log});
+}
+
+pub const std_options: std.Options = .{
+    // Fix a emscripten bug in 0.16 that breaks std.defaultLog
+    .logFn = customLogFn,
+};
+
 const SCREEN_WIDTH = 1200;
 const SCREEN_HEIGHT = 675;
 
