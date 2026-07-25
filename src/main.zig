@@ -12,11 +12,6 @@ var state: enum { game } = .game;
 
 var board: Board = .{};
 
-const MAX_DARTS = 1024;
-
-var darts_buffer: [MAX_DARTS]Dart = undefined;
-var darts: std.ArrayList(Dart) = .initBuffer(&darts_buffer);
-
 var throwing_dart: Dart = .{};
 
 pub fn sendHighscore(name: *const [3]u8, score: u32) void {
@@ -34,6 +29,8 @@ pub fn sendHighscore(name: *const [3]u8, score: u32) void {
 }
 
 pub fn main() !void {
+    board.setup();
+
     rl.initWindow(SCREEN_WIDTH, SCREEN_HEIGHT, build_options.GAME_NAME);
     defer rl.closeWindow();
 
@@ -46,10 +43,6 @@ pub fn main() !void {
 
     sendHighscore("JEF", 32);
 
-    darts.appendAssumeCapacity(.{
-        .position = .{ .x = 20, .y = 20 },
-    });
-
     while (!rl.windowShouldClose()) {
         const dt = rl.getFrameTime();
 
@@ -57,9 +50,6 @@ pub fn main() !void {
         switch (state) {
             .game => {
                 try board.update(dt);
-
-                for (darts.items) |*dart|
-                    try dart.update(dt);
             },
         }
 
@@ -79,9 +69,6 @@ pub fn main() !void {
                 };
 
                 board.draw(board_bounds);
-
-                for (darts.items) |dart|
-                    dart.draw();
             },
         }
     }

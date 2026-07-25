@@ -1,16 +1,25 @@
 const std = @import("std");
 const rl = @import("raylib");
 
+const Dart = @import("Dart.zig");
+
 const Board = @This();
 
+const MAX_DARTS = 1024;
+
+darts_buffer: [MAX_DARTS]Dart = undefined,
+darts: std.ArrayList(Dart) = undefined,
+
+pub fn setup(self: *Board) void {
+    self.darts = .initBuffer(&self.darts_buffer);
+}
+
 pub fn update(self: *Board, dt: f64) !void {
-    _ = self;
-    _ = dt;
+    for (self.darts.items) |*dart|
+        try dart.update(dt);
 }
 
 pub fn draw(self: *const Board, bounds: rl.Rectangle) void {
-    _ = self;
-
     {
         // TODO: replace with a real sprite
         const center: rl.Vector2 = .{
@@ -39,4 +48,7 @@ pub fn draw(self: *const Board, bounds: rl.Rectangle) void {
         rl.drawCircleLinesV(center, bounds.width * 0.5 * 0.071, .black);
         rl.drawCircleLinesV(center, bounds.width * 0.5 * 0.028, .black);
     }
+
+    for (self.darts.items) |dart|
+        dart.draw();
 }
