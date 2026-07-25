@@ -4,7 +4,7 @@ const Upgrades = @import("../Upgrades.zig");
 const Shop = @import("../Shop.zig");
 const Button = @import("Button.zig");
 button: Button,
-upgrade: Upgrades.UpgradeType,
+upgrade: Upgrades.UpgradeData,
 shop: *Shop,
 
 const ShopButton = @This();

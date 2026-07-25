@@ -34,7 +34,7 @@ pub fn setup(self: *Shop, board: *Board) void {
         var shop_btn = &buttons[iter];
 
         shop_btn.* = .{
-            .upgrade = info.type,
+            .upgrade = info,
             .button = Button{},
             .shop = self,
         };

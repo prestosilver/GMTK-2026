@@ -5,7 +5,7 @@ const Shop = @import("Shop.zig");
 //Name / Cost
 pub const UpgradeType = enum { Monkey, Power, DevilFruit, NewUgrade };
 
-const UpgradeData = struct {
+pub const UpgradeData = struct {
     type: UpgradeType,
     cost: u32,
     name: [:0]const u8,
@@ -32,10 +32,20 @@ pub const UPGRADE_INFO = [_]UpgradeData{ .{
 
 //TODO impl upgrade logic
 //all upgrade logic goes here...
-pub fn applyUpgrade(upg: UpgradeType, shop: *Shop) !void {
-    _ = shop;
+pub fn applyUpgrade(upg: UpgradeData, shop: *Shop) !void {
+    const PLR_MONEY = shop.money;
+    const COST = upg.cost;
 
-    switch (upg) {
+    if (PLR_MONEY < COST) {
+        //throw an error.. player doesn't have enough moneys..
+
+        return;
+    }
+
+    //charge player the cost
+    shop.money -= COST;
+
+    switch (upg.type) {
         .Monkey => {
             std.log.warn("monke upgrade", .{});
         },
