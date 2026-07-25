@@ -15,6 +15,7 @@ money: u64 = 0,
 y_offset: f32 = 0,
 board: *Board = undefined,
 purchased_upgrade_count: UpgradeCounts = UpgradeCounts.initFill(0),
+shop_button_container_height: u32 = 0,
 
 const SHOP_BG: rl.Color = .{ .r = 128, .g = 42, .b = 98, .a = 255 };
 const SHOP_TEXT: rl.Color = .{ .r = 0, .g = 0, .b = 0, .a = 255 };
@@ -25,6 +26,8 @@ const BUTTON_HEIGHT = 50;
 const DARTS_FONT_SIZE = 35;
 const TITLE_FONT_SIZE = 35;
 const MONEY_FONT_SIZE = 24;
+
+const SHOP_SCROLL_SPEED = 50;
 
 const START_BUTTONS_Y = DARTS_FONT_SIZE + TITLE_FONT_SIZE + MONEY_FONT_SIZE + (SHOP_PADDING.y * 2);
 
@@ -41,16 +44,26 @@ pub fn setup(self: *Shop, board: *Board) void {
             .shop = self,
         };
     }
+
+    self.shop_button_container_height =
+        @as(f32, @floatFromInt(buttons.len)) * BUTTON_HEIGHT +
+        @as(f32, @floatFromInt(buttons.len - 1)) * SHOP_PADDING.y;
 }
 
 pub fn update(self: *Shop, dt: f64, bounds: rl.Rectangle) !void {
-    _ = self;
     _ = dt;
 
     for (&buttons, 0..) |*btn, idx| {
-        const btn_bounds = getButtonBounds(bounds, @as(f32, @floatFromInt(idx)));
+        const btn_bounds = getButtonBounds(self, bounds, @as(f32, @floatFromInt(idx)));
         btn.update(btn_bounds);
     }
+
+    const viewport_height = bounds.height - START_BUTTONS_Y;
+    const scroll = rl.getMouseWheelMove() * SHOP_SCROLL_SPEED;
+    const max_scroll = @max(0, @as(f32, @floatFromInt(self.shop_button_container_height)) - viewport_height);
+
+    self.y_offset += scroll * SHOP_SCROLL_SPEED;
+    self.y_offset = std.math.clamp(self.y_offset, -max_scroll, 0);
 }
 
 pub fn draw(self: *const Shop, bounds: rl.Rectangle) void {
@@ -66,7 +79,7 @@ pub fn draw(self: *const Shop, bounds: rl.Rectangle) void {
     var darts_fmt: [64]u8 = undefined;
     const darts_text = std.fmt.bufPrintSentinel(
         &darts_fmt,
-        "{:07}",
+        "{:06}",
         .{self.board.darts.capacity - self.board.darts.items.len},
         0,
     ) catch unreachable;
@@ -110,11 +123,20 @@ pub fn draw(self: *const Shop, bounds: rl.Rectangle) void {
         SHOP_TEXT,
     );
 
+    rl.beginScissorMode(
+        @intFromFloat(bounds.x),
+        @intFromFloat(START_BUTTONS_Y),
+        @intFromFloat(bounds.width),
+        @intFromFloat(bounds.height),
+    );
+
     for (buttons, 0..) |btn, iter| {
         updateButtonText(self, @intCast(iter));
         const idx = @as(f32, @floatFromInt(iter));
-        btn.draw(getButtonBounds(bounds, idx));
+        btn.draw(getButtonBounds(self, bounds, idx));
     }
+
+    rl.endScissorMode();
 }
 
 fn updateButtonText(self: *const Shop, idx: u32) void {
@@ -130,13 +152,13 @@ fn updateButtonText(self: *const Shop, idx: u32) void {
     ) catch unreachable;
 }
 
-fn getButtonBounds(shop_bounds: rl.Rectangle, idx: f32) rl.Rectangle {
+fn getButtonBounds(self: *const Shop, shop_bounds: rl.Rectangle, idx: f32) rl.Rectangle {
     const START_X = shop_bounds.x + SHOP_PADDING.x;
     const BUTTON_WIDTH = shop_bounds.width - SHOP_PADDING.x * 2;
 
     return .{
         .x = START_X,
-        .y = START_BUTTONS_Y + ((BUTTON_HEIGHT * idx) + (SHOP_PADDING.y * idx)),
+        .y = START_BUTTONS_Y + self.y_offset + ((BUTTON_HEIGHT * idx) + (SHOP_PADDING.y * idx)),
         .width = BUTTON_WIDTH,
         .height = BUTTON_HEIGHT,
     };
