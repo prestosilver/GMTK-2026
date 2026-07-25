@@ -122,9 +122,10 @@ pub fn main() !void {
     Dart.dart_sprite = try rl.loadTexture("dart.png");
     defer Dart.dart_sprite.unload();
 
-    sendHighscore("JEF", 32);
+    leaderboard.cursor_texture = try rl.loadTexture("name_arrow.png");
+    defer leaderboard.cursor_texture.unload();
 
-    setState(.title);
+    setState(.end);
 
     rl.hideCursor();
 
@@ -149,7 +150,7 @@ pub fn main() !void {
                 try shop.update(dt, SHOP_BOUNDS);
             },
             .end => {
-                try leaderboard.update(dt);
+                leaderboard.update(dt);
             },
         }
 
