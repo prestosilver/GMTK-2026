@@ -14,8 +14,8 @@ pub fn build(b: *std.Build) !void {
 
     const options = b.addOptions();
     options.addOption([:0]const u8, "GAME_NAME", GAME_NAME);
-    options.addOption(comptime_int, "SCREEN_WIDTH", SCREEN_HEIGHT);
-    options.addOption(comptime_int, "SCREEN_HEIGHT", SCREEN_WIDTH);
+    options.addOption(comptime_int, "SCREEN_WIDTH", SCREEN_WIDTH);
+    options.addOption(comptime_int, "SCREEN_HEIGHT", SCREEN_HEIGHT);
     options.addOption([]const u8, "BOARD_SALT", board_salt);
 
     const raylib_dep = b.dependency("raylib_zig", .{
