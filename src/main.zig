@@ -5,6 +5,7 @@ const build_options = @import("build_options");
 const Board = @import("Board.zig");
 const Dart = @import("Dart.zig");
 const Shop = @import("Shop.zig");
+const Leaderboard = @import("./ui/Leaderboard.zig");
 
 pub fn customLogFn(
     comptime level: std.log.Level,
@@ -36,17 +37,25 @@ const SHOP_WIDTH = SCREEN_WIDTH - 800;
 
 const BG_COLOR: rl.Color = .{ .r = 0, .g = 0, .b = 0, .a = 255 };
 
-const State = enum { title, game };
-var state: State = .title;
+const State = enum { title, game, end };
+var state: State = .end;
 
 var board: Board = .{};
 var shop: Shop = .{};
+var leaderboard: Leaderboard = .{};
 
 var throwing_dart: Dart = .{};
 
 var transition_timer: f64 = 0.0;
 
 const TITLE_BOARD_BOUNDS: rl.Rectangle = .{
+    .x = (SCREEN_WIDTH - SCREEN_HEIGHT) * 0.5,
+    .y = 0,
+    .width = SCREEN_HEIGHT, // square
+    .height = SCREEN_HEIGHT,
+};
+
+const END_BOARD_BOUNDS: rl.Rectangle = .{
     .x = (SCREEN_WIDTH - SCREEN_HEIGHT) * 0.5,
     .y = 0,
     .width = SCREEN_HEIGHT, // square
@@ -64,6 +73,13 @@ const SHOP_BOUNDS: rl.Rectangle = .{
     .x = SHOP_X,
     .y = 0,
     .width = SHOP_WIDTH,
+    .height = SCREEN_HEIGHT,
+};
+
+const LEADERBORAD_BOUNDS: rl.Rectangle = .{
+    .x = 0,
+    .y = 0,
+    .width = SCREEN_HEIGHT, // square
     .height = SCREEN_HEIGHT,
 };
 
@@ -89,6 +105,7 @@ pub fn setState(new_state: State) void {
         .game => {
             shop.setup(&board);
         },
+        .end => {},
     }
     state = new_state;
 
@@ -129,6 +146,7 @@ pub fn main() !void {
                 try board.update(dt, &shop, BOARD_BOUNDS);
                 try shop.update(dt, SHOP_BOUNDS);
             },
+            .end => {},
         }
 
         // draw frame
@@ -149,6 +167,10 @@ pub fn main() !void {
                     .width = BOARD_BOUNDS.width,
                     .height = BOARD_BOUNDS.height,
                 });
+            },
+            .end => {
+                board.draw(END_BOARD_BOUNDS);
+                leaderboard.draw(LEADERBORAD_BOUNDS);
             },
         }
     }

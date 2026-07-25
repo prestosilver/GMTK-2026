@@ -79,7 +79,7 @@ pub fn draw(self: *const Shop, bounds: rl.Rectangle) void {
     var darts_fmt: [64]u8 = undefined;
     const darts_text = std.fmt.bufPrintSentinel(
         &darts_fmt,
-        "{:07}",
+        "{:06}",
         .{self.board.darts.capacity - self.board.darts.items.len},
         0,
     ) catch unreachable;
