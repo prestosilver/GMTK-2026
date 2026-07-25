@@ -5,13 +5,18 @@ const Button = @import("Button.zig");
 const OnClickCallbackType = *const fn () void;
 
 const Leaderboard = @This();
-btn: Button = .{ .text = "Play Again" },
+btn: Button = .{
+    .text = "Play Again",
+},
 
 const FONT_SIZE = 20;
 const TEXT_PADDING = 20;
 
-pub fn update(self: *Leaderboard) !void {
-    _ = self;
+
+const BUTTON_BOUNDS : rl.Rectangle = .{.x=};
+
+pub fn update(self: *Leaderboard, bounds: rl.Rectangle) !void {
+    self.btn.update();
 }
 
 pub fn draw(self: *const Leaderboard, bounds: rl.Rectangle) void {

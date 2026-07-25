@@ -127,7 +127,7 @@ pub fn main() !void {
 
     sendHighscore("JEF", 32);
 
-    setState(.title);
+    setState(.end);
 
     rl.hideCursor();
 
