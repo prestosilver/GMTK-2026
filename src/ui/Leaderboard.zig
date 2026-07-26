@@ -1,14 +1,10 @@
 const std = @import("std");
 const rl = @import("raylib");
 const build_options = @import("build_options");
-const Button = @import("Button.zig");
 
 const OnClickCallbackType = *const fn () void;
-
 const Leaderboard = @This();
-btn: Button = .{
-    .text = "Submit Score",
-},
+
 score: u32 = 0,
 active_idx: u32 = 0,
 name: [3:0]u8 = "AAA".*,
@@ -39,6 +35,9 @@ const NAME_SELECTION_PADDING = 20;
 
 const CURSOR_SIZE = 20;
 
+const PRESS_ENTER_TEXT = "Press Enter To Submit Score";
+const PRESS_ENTER_FONT_SIZE = 40;
+
 const LEADERBOARD_BOUNDS: rl.Rectangle = .{
     .x = (build_options.SCREEN_WIDTH - build_options.SCREEN_HEIGHT) * 0.5,
     .y = 0,
@@ -48,7 +47,6 @@ const LEADERBOARD_BOUNDS: rl.Rectangle = .{
 
 pub fn update(self: *Leaderboard, dt: f32) void {
     _ = dt;
-    self.btn.update(BUTTON_BOUNDS);
 
     //change highlighted character index....
     if (rl.isKeyPressed(.right)) {
@@ -60,6 +58,8 @@ pub fn update(self: *Leaderboard, dt: f32) void {
     } else if (rl.isKeyPressed(.up)) {
         var char_idx = std.mem.indexOf(u8, VALID_CHARS, &.{self.name[self.active_idx]}) orelse 0;
         char_idx += 1;
+
+        //prevent overflow, 1 + 26
         char_idx = char_idx % VALID_CHARS.len;
         self.name[self.active_idx] = VALID_CHARS[char_idx];
         is_pressed = true;
@@ -69,9 +69,13 @@ pub fn update(self: *Leaderboard, dt: f32) void {
         char_idx = char_idx % VALID_CHARS.len;
         self.name[self.active_idx] = VALID_CHARS[char_idx];
         is_pressed = true;
+    } else if (rl.isKeyPressed(.enter)) {
+        return true;
     } else {
         is_pressed = false;
     }
+
+    return false;
 }
 
 pub fn draw(self: *const Leaderboard, bounds: rl.Rectangle) void {
@@ -173,7 +177,15 @@ pub fn draw(self: *const Leaderboard, bounds: rl.Rectangle) void {
             );
         }
 
-        //Leaderboard Background
-        self.btn.draw(BUTTON_BOUNDS);
+        const prompt_width = rl.measureText(PRESS_ENTER_TEXT, PRESS_ENTER_FONT_SIZE);
+
+        //Print instructions to press enter to submit score
+        rl.drawText(
+            "Press Enter To Submit Score",
+            build_options.SCREEN_WIDTH / 2 - @divFloor(prompt_width, 2),
+            build_options.SCREEN_HEIGHT - 100,
+            PRESS_ENTER_FONT_SIZE,
+            .black,
+        );
     }
 }

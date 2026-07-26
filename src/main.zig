@@ -158,7 +158,9 @@ pub fn main() !void {
                     setState(.end);
             },
             .end => {
-                leaderboard.update(dt);
+                if (leaderboard.update(dt)) {
+                    setState(.title);
+                }
             },
         }
 
