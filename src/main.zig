@@ -122,6 +122,9 @@ pub fn main() !void {
     Dart.dart_sprite = try rl.loadTexture("dart.png");
     defer Dart.dart_sprite.unload();
 
+    leaderboard.cursor_texture = try rl.loadTexture("name_arrow.png");
+    defer leaderboard.cursor_texture.unload();
+
     Dart.shadow_sprite = try rl.loadTexture("dart_shadow.png");
     defer Dart.shadow_sprite.unload();
 
@@ -155,7 +158,7 @@ pub fn main() !void {
                     setState(.end);
             },
             .end => {
-                try leaderboard.update(dt);
+                leaderboard.update(dt);
             },
         }
 
