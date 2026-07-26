@@ -1,11 +1,15 @@
 import { cors } from "hono/cors"
 import { Hono } from "hono";
 import { validators } from "@scope/leaderboard";
+import { PrismaClient } from "@scope/db"
+import { PrismaPg } from "@prisma/adapter-pg";
 
-import { PrismaClient } from "./packages/db/generated/client.ts"
+const adapter = new PrismaPg({
+    connectionString: Deno.env.get("DB_URL")
+});
 
 const prisma = new PrismaClient({
-    accelerateUrl: String(Deno.env.get("DB_URL"))
+    adapter
 });
 
 const app = new Hono();
