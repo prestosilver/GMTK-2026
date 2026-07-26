@@ -4,7 +4,7 @@ const Board = @import("Board.zig");
 const Shop = @import("Shop.zig");
 
 //Name / Cost
-pub const UpgradeType = enum { Monkey, Spread, Focus, MonkeySpread };
+pub const UpgradeType = enum { Monkey, Spread, Focus, MonkeyFocus, MonkeySpread };
 
 pub const UpgradeData = struct {
     type: UpgradeType,
@@ -16,15 +16,16 @@ pub const UpgradeData = struct {
 //TODO costs should prob increase by a fn? Should these be base prices?
 pub const UPGRADE_INFO = [_]UpgradeData{
     .{ .type = .Spread, .name = "Spread", .base_cost = 100, .mult = 1.5 },
-    .{ .type = .Monkey, .name = "Monkey", .base_cost = 500, .mult = 1.5 },
-    .{ .type = .Focus, .name = "Focus", .base_cost = 1000, .mult = 1.5 },
-    .{ .type = .MonkeySpread, .name = "Monkey Spread", .base_cost = 9000, .mult = 1.5 },
+    .{ .type = .Monkey, .name = "Monkey", .base_cost = 300, .mult = 1.75 },
+    .{ .type = .Focus, .name = "Focus", .base_cost = 500, .mult = 1.5 },
+    .{ .type = .MonkeyFocus, .name = "Monkey Focus", .base_cost = 800, .mult = 1.5 },
+    .{ .type = .MonkeySpread, .name = "Monkey Spread", .base_cost = 1000, .mult = 1.5 },
 };
 
 pub fn getUpgradeCost(upg: UpgradeData, shop: *const Shop) u32 {
     const purchased = @as(f32, @floatFromInt(shop.purchased_upgrade_count.get(upg.type)));
 
-    return @intFromFloat(@as(f32, @floatFromInt(upg.base_cost)) * (1.0 + purchased * upg.mult));
+    return @intFromFloat(@as(f32, @floatFromInt(upg.base_cost)) * std.math.pow(f32, upg.mult, purchased));
 }
 
 //TODO impl upgrade logic
@@ -47,10 +48,14 @@ pub fn applyUpgrade(upg: UpgradeData, shop: *Shop, board: *Board) !void {
             board.throw_count += 1;
         },
         .Monkey => {
-            board.dart_monkey_per_second += 5.0;
+            board.dart_monkey_per_second += 1.0;
+            board.dart_monkey_per_second *= 1.1;
         },
         .Focus => {
             board.focus *= 0.75;
+        },
+        .MonkeyFocus => {
+            board.dart_monkey_radius *= 0.9;
         },
         .MonkeySpread => {
             board.dart_monkey_spread += 1;
