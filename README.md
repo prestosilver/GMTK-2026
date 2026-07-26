@@ -59,22 +59,26 @@
 
 ## Timeline
 
-- [ ] Day 1 (Frenchday)
+- [X] Day 1 (Frenchday)
     - [X] Person: Zig js transport
     - [X] Person: Art
 - [ ] Day 2 (Sa-TURD-day)
-    - [X] The sami: Game over + Shop
-    - [X] The sami: Shop
+    - [X] The Sami: Game over
+    - [X] The Sami: Shop
     - [X] Person: Title
     - [X] Person: Dart game 
-    - [ ] Person: Scoring 
+    - [X] Person: Scoring 
     - [ ] Person: Audio
-    - [X] Upgrades
-    - [X] The sami: Connect shop
-    - [ ] Itch page
+    - [X] Person: Upgrades
+    - [X] Person: Connect shop
+    - [ ] The Sami: Leaderboard 
     - [ ] MVP
 - [ ] Day 3 (Winding Wingding day (The holy day (Sunday)))
-    - [ ] The sami: Leaderboard 
+    - [ ] The Sami: Itch page
     - [ ] Polish
         - Limit rendering
     - [ ] Playtest
+ 
+## Bugz
+
+- [ ] First dart does nothing

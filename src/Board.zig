@@ -6,7 +6,7 @@ const Shop = @import("Shop.zig");
 
 const Board = @This();
 
-const MAX_DARTS = 1_000_000;
+const MAX_DARTS = 1_000;
 
 const BOARD_VALUES = [20]u32{ 20, 1, 18, 4, 13, 6, 10, 15, 2, 13, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5 };
 
@@ -115,6 +115,10 @@ pub fn throwDart(self: *Board, shop: *Shop, bounds: rl.Rectangle, position: rl.V
         self.darts.items[self.darts.items.len - 100].rot_vel = @as(f32, @floatFromInt(rl.getRandomValue(0, 100))) / 100.0 - 0.5;
     }
 
+    if (points == 0) {
+        self.darts.items[self.darts.items.len - 1].fall = true;
+    }
+
     self.darts_order.insertAssumeCapacity(for (self.darts_order.items, 0..) |dart, index| {
         if (self.darts.items[dart].position.y < self.darts.getLast().position.y)
             break index;
@@ -182,7 +186,9 @@ pub fn draw(self: *const Board, bounds: rl.Rectangle) void {
         .white,
     );
 
-    for (self.darts_order.items) |dart_idx|
+    const start = if (self.darts_order.items.len < 2000) 0 else self.darts_order.items.len - 2000;
+
+    for (self.darts_order.items[start..self.darts_order.items.len]) |dart_idx|
         self.darts.items[dart_idx].draw(.{
             .x = bounds.x,
             .y = bounds.y,
