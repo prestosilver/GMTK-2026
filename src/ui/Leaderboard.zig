@@ -45,7 +45,7 @@ const LEADERBOARD_BOUNDS: rl.Rectangle = .{
     .height = build_options.SCREEN_HEIGHT,
 };
 
-pub fn update(self: *Leaderboard, dt: f32) void {
+pub fn update(self: *Leaderboard, dt: f32) bool {
     _ = dt;
 
     //change highlighted character index....
@@ -70,6 +70,8 @@ pub fn update(self: *Leaderboard, dt: f32) void {
         self.name[self.active_idx] = VALID_CHARS[char_idx];
         is_pressed = true;
     } else if (rl.isKeyPressed(.enter)) {
+
+        //submit score here...
         return true;
     } else {
         is_pressed = false;

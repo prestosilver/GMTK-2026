@@ -76,6 +76,7 @@
 - [ ] Day 3 (Winding Wingding day (The holy day (Sunday)))
     - [ ] The Sami: Itch page
     - [ ] Polish
+        - Limit rendering
     - [ ] Playtest
  
 ## Bugz
