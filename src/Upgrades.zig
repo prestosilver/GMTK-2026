@@ -4,7 +4,7 @@ const Board = @import("Board.zig");
 const Shop = @import("Shop.zig");
 
 //Name / Cost
-pub const UpgradeType = enum { Monkey, Power, DevilFruit, NewUgrade };
+pub const UpgradeType = enum { Monkey, Spread, Focus, MonkeySpread };
 
 pub const UpgradeData = struct {
     type: UpgradeType,
@@ -14,27 +14,12 @@ pub const UpgradeData = struct {
 };
 
 //TODO costs should prob increase by a fn? Should these be base prices?
-pub const UPGRADE_INFO = [_]UpgradeData{ .{
-    .type = UpgradeType.Monkey,
-    .name = "Monkey",
-    .base_cost = 100,
-    .mult = 1.5,
-}, .{
-    .type = UpgradeType.Power,
-    .name = "Power",
-    .base_cost = 500,
-    .mult = 1.5,
-}, .{
-    .type = UpgradeType.DevilFruit,
-    .name = "Devil Fruit",
-    .base_cost = 1000,
-    .mult = 1.5,
-}, .{
-    .type = UpgradeType.NewUgrade,
-    .name = "Joe Bamba",
-    .base_cost = 9000,
-    .mult = 1.5,
-} };
+pub const UPGRADE_INFO = [_]UpgradeData{
+    .{ .type = .Spread, .name = "Spread", .base_cost = 100, .mult = 1.5 },
+    .{ .type = .Monkey, .name = "Monkey", .base_cost = 500, .mult = 1.5 },
+    .{ .type = .Focus, .name = "Focus", .base_cost = 1000, .mult = 1.5 },
+    .{ .type = .MonkeySpread, .name = "Monkey Spread", .base_cost = 9000, .mult = 1.5 },
+};
 
 pub fn getUpgradeCost(upg: UpgradeData, shop: *const Shop) u32 {
     const purchased = @as(f32, @floatFromInt(shop.purchased_upgrade_count.get(upg.type)));
@@ -58,17 +43,17 @@ pub fn applyUpgrade(upg: UpgradeData, shop: *Shop, board: *Board) !void {
     shop.money -= COST;
 
     switch (upg.type) {
+        .Spread => {
+            board.throw_count += 1;
+        },
         .Monkey => {
             board.dart_monkey_per_second += 5.0;
         },
-        .Power => {
-            std.log.warn("Power up (my ass)", .{});
+        .Focus => {
+            board.focus *= 0.75;
         },
-        .DevilFruit => {
-            std.log.warn("No swim :(", .{});
-        },
-        .NewUgrade => {
-            std.log.warn("Yes, I spelled this wrong", .{});
+        .MonkeySpread => {
+            board.dart_monkey_spread += 1;
         },
     }
 

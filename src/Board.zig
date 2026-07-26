@@ -28,11 +28,14 @@ sprite: rl.Texture = undefined,
 throwing_dart: Dart = .{},
 throwing_phase: enum { place, aim } = .place,
 throwing_time: f64 = 0.0,
+throw_count: u32 = 1,
+focus: f32 = 1.0,
 score: u32 = 301,
 games: u32 = 0,
 
 dart_monkey_per_second: f32 = 0.0,
 dart_monkey_counter: f64 = 0.0,
+dart_monkey_spread: u32 = 1,
 
 pub fn setup(self: *Board) void {
     self.* = .{
@@ -128,13 +131,15 @@ pub fn update(self: *Board, dt: f64, shop: *Shop, bounds: rl.Rectangle) !void {
         self.dart_monkey_counter += dt;
 
     while (self.dart_monkey_counter > 1.0 / self.dart_monkey_per_second) {
-        const x = @as(f32, @floatFromInt(rl.getRandomValue(0, 100))) / 100.0;
-        const y = @as(f32, @floatFromInt(rl.getRandomValue(0, 100))) / 100.0;
+        for (0..self.dart_monkey_spread) |_| {
+            const x = @as(f32, @floatFromInt(rl.getRandomValue(0, 100))) / 100.0;
+            const y = @as(f32, @floatFromInt(rl.getRandomValue(0, 100))) / 100.0;
 
-        self.throwDart(shop, bounds, .{
-            .x = bounds.x + bounds.width * x,
-            .y = bounds.y + bounds.height * y,
-        });
+            self.throwDart(shop, bounds, .{
+                .x = bounds.x + bounds.width * x,
+                .y = bounds.y + bounds.height * y,
+            });
+        }
 
         self.dart_monkey_counter -= 1.0 / self.dart_monkey_per_second;
     }
@@ -150,13 +155,15 @@ pub fn update(self: *Board, dt: f64, shop: *Shop, bounds: rl.Rectangle) !void {
                     const throwing_mult = std.math.pow(f32, @as(f32, @floatCast((1.0 + @sin(self.throwing_time * std.math.pi)))) * 0.5, 5.0);
                     const throwing_radius = (100.0 - @as(f32, @floatCast(throwing_mult * 100.0)));
 
-                    const angle = @as(f32, @floatFromInt(rl.getRandomValue(0, 100))) / 100.0 * std.math.pi * 2;
-                    const mag = std.math.sqrt(@as(f32, @floatFromInt(rl.getRandomValue(0, 100))) / 100.0) * throwing_radius;
+                    for (0..self.throw_count) |_| {
+                        const angle = @as(f32, @floatFromInt(rl.getRandomValue(0, 100))) / 100.0 * std.math.pi * 2;
+                        const mag = std.math.sqrt(@as(f32, @floatFromInt(rl.getRandomValue(0, 100))) / 100.0) * throwing_radius;
 
-                    self.throwDart(shop, bounds, .{
-                        .x = self.throwing_dart.position.x - bounds.x + @sin(angle) * mag,
-                        .y = self.throwing_dart.position.y - bounds.y + @cos(angle) * mag,
-                    });
+                        self.throwDart(shop, bounds, .{
+                            .x = self.throwing_dart.position.x - bounds.x + @sin(angle) * mag,
+                            .y = self.throwing_dart.position.y - bounds.y + @cos(angle) * mag,
+                        });
+                    }
 
                     self.throwing_phase = .place;
                 },
@@ -182,7 +189,7 @@ pub fn draw(self: *const Board, bounds: rl.Rectangle) void {
         });
 
     const throwing_mult = std.math.pow(f32, @floatCast((1.0 + @sin(self.throwing_time * std.math.pi)) * 0.5), 5.0);
-    const throwing_radius = (100.0 - @as(f32, @floatCast(throwing_mult * 100.0)));
+    const throwing_radius = (self.focus * 100.0 - @as(f32, @floatCast(throwing_mult * 100.0 * self.focus)));
 
     self.throwing_dart.draw(.{ .x = 0, .y = 0 });
 

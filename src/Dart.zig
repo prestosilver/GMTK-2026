@@ -43,11 +43,4 @@ pub fn draw(self: *const Dart, offset: rl.Vector2) void {
             .height = DART_HEIGHT,
         }, .{ .x = 0.5, .y = 0 }, self.rot, .white);
     }
-
-    //rl.drawRectangleRec(.{
-    //    .x = self.position.x - DART_WIDTH * 0.5,
-    //    .y = self.position.y,
-    //    .width = DART_WIDTH,
-    //    .height = DART_HEIGHT,
-    //}, .blue);
 }
