@@ -82,3 +82,5 @@
 ## Bugz
 
 - [ ] First dart does nothing
+- [ ] Shop text
+- [ ] Shop upgrades
