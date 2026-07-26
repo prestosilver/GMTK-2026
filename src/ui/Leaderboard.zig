@@ -23,9 +23,9 @@ const BUTTON_BOUNDS: rl.Rectangle = .{
     .height = BUTTON_DIMS.y,
 };
 
-const HEADER_TEXT = "Leaderboard";
+const HEADER_TEXT = "You win";
 const HEADER_FONT_SIZE = 30;
-const HEADER_COLOR: rl.Color = .black;
+const HEADER_COLOR: rl.Color = .white;
 
 const NAME_SLOT_SIZE = 60;
 const TOTAL_NAME_WIDTH = NAME_SLOT_SIZE * 3;
@@ -89,16 +89,11 @@ pub fn draw(self: *const Leaderboard, bounds: rl.Rectangle) void {
 
     const HEADER_COORDS: rl.Vector2 = .{
         .x = LEADERBOARD_BOUNDS.x + (LEADERBOARD_BOUNDS.width - @as(f32, @floatFromInt(HEADER_WIDTH))) * 0.5,
-        .y = LEADERBOARD_BOUNDS.y + TEXT_PADDING,
+        .y = LEADERBOARD_BOUNDS.y + LEADERBOARD_BOUNDS.width / 2.0 - 13,
     };
 
     //Draw background of leaderboard
-    rl.drawRectangleRec(LEADERBOARD_BOUNDS, .{
-        .r = 211,
-        .g = 211,
-        .b = 211,
-        .a = 200,
-    });
+    rl.drawRectangleRec(LEADERBOARD_BOUNDS, .black);
 
     //draw leaderboard header
     rl.drawText(
@@ -109,92 +104,109 @@ pub fn draw(self: *const Leaderboard, bounds: rl.Rectangle) void {
         HEADER_COLOR,
     );
 
-    const name = &self.name;
+    var buf: [256]u8 = undefined;
+    const score_text = std.fmt.bufPrintZ(&buf, "You finished {} games.", .{self.score}) catch unreachable;
 
-    //draw user name input
-    const NAME_WIDTH = rl.measureText(name, NAME_FONT_SIZE);
+    const SCORE_WIDTH = rl.measureText(score_text, HEADER_FONT_SIZE);
 
-    const NAME_COORDS: rl.Vector2 = .{
-        .x = LEADERBOARD_BOUNDS.x + (LEADERBOARD_BOUNDS.width - @as(f32, @floatFromInt(NAME_WIDTH))) * 0.5,
-        .y = NAME_POSITION_Y + TEXT_PADDING,
+    const SCORE_COORDS: rl.Vector2 = .{
+        .x = LEADERBOARD_BOUNDS.x + (LEADERBOARD_BOUNDS.width - @as(f32, @floatFromInt(SCORE_WIDTH))) * 0.5,
+        .y = LEADERBOARD_BOUNDS.y + LEADERBOARD_BOUNDS.width / 2.0 + 11,
     };
+    rl.drawText(
+        score_text,
+        @intFromFloat(SCORE_COORDS.x),
+        @intFromFloat(SCORE_COORDS.y),
+        HEADER_FONT_SIZE,
+        HEADER_COLOR,
+    );
 
-    //get midpoint for starting position
-    const start_x = LEADERBOARD_BOUNDS.x + (LEADERBOARD_BOUNDS.width - TOTAL_NAME_WIDTH) * 0.5;
+    // const name = &self.name;
 
-    for (0..3) |idx| {
-        const idx_fl = @as(f32, @floatFromInt(idx));
-        const slot_x = start_x + NAME_SLOT_SIZE * idx_fl;
+    // //draw user name input
+    // const NAME_WIDTH = rl.measureText(name, NAME_FONT_SIZE);
 
-        const char_buf: [1:0]u8 = .{name[idx]};
-        const char_width = @as(f32, @floatFromInt(rl.measureText(&char_buf, NAME_FONT_SIZE)));
+    // const NAME_COORDS: rl.Vector2 = .{
+    //     .x = LEADERBOARD_BOUNDS.x + (LEADERBOARD_BOUNDS.width - @as(f32, @floatFromInt(NAME_WIDTH))) * 0.5,
+    //     .y = NAME_POSITION_Y + TEXT_PADDING,
+    // };
 
-        //center letter
-        const draw_x = slot_x + (NAME_SLOT_SIZE - char_width) * 0.5;
+    // //get midpoint for starting position
+    // const start_x = LEADERBOARD_BOUNDS.x + (LEADERBOARD_BOUNDS.width - TOTAL_NAME_WIDTH) * 0.5;
 
-        rl.drawText(
-            &char_buf,
-            @intFromFloat(draw_x),
-            @intFromFloat(NAME_COORDS.y),
-            NAME_FONT_SIZE,
-            NAME_COLOR,
-        );
+    // for (0..3) |idx| {
+    //     const idx_fl = @as(f32, @floatFromInt(idx));
+    //     const slot_x = start_x + NAME_SLOT_SIZE * idx_fl;
 
-        //draw cursors if ids of active one.
-        if (idx == self.active_idx) {
-            const center_x = slot_x + NAME_SLOT_SIZE * 0.5;
-            const top_y = NAME_COORDS.y - NAME_SELECTION_PADDING;
+    //     const char_buf: [1:0]u8 = .{name[idx]};
+    //     const char_width = @as(f32, @floatFromInt(rl.measureText(&char_buf, NAME_FONT_SIZE)));
 
-            //top triangle
-            const cursor_source: rl.Rectangle = .{
-                .x = 0,
-                .y = 0,
-                .width = @as(f32, @floatFromInt(self.cursor_texture.width)) - 0.1,
-                .height = @as(f32, @floatFromInt(self.cursor_texture.height)) - 0.1,
-            };
+    //     //center letter
+    //     const draw_x = slot_x + (NAME_SLOT_SIZE - char_width) * 0.5;
 
-            self.cursor_texture.drawPro(
-                cursor_source,
-                .{
-                    .x = center_x - CURSOR_SIZE / 2,
-                    .y = top_y,
-                    .width = CURSOR_SIZE, //square
-                    .height = CURSOR_SIZE,
-                },
-                .{
-                    .x = 0.5,
-                    .y = 0.5,
-                },
-                0,
-                .white,
-            );
+    //     rl.drawText(
+    //         &char_buf,
+    //         @intFromFloat(draw_x),
+    //         @intFromFloat(NAME_COORDS.y),
+    //         NAME_FONT_SIZE,
+    //         NAME_COLOR,
+    //     );
 
-            self.cursor_texture.drawPro(
-                cursor_source,
-                .{
-                    .x = center_x - CURSOR_SIZE / 2,
-                    .y = top_y + NAME_FONT_SIZE,
-                    .width = CURSOR_SIZE, //square
-                    .height = CURSOR_SIZE,
-                },
-                .{
-                    .x = 0.5,
-                    .y = 0.5,
-                },
-                0,
-                .white,
-            );
-        }
-    }
+    //     //draw cursors if ids of active one.
+    //     if (idx == self.active_idx) {
+    //         const center_x = slot_x + NAME_SLOT_SIZE * 0.5;
+    //         const top_y = NAME_COORDS.y - NAME_SELECTION_PADDING;
 
-    const prompt_width = rl.measureText(PRESS_ENTER_TEXT, PRESS_ENTER_FONT_SIZE);
+    //         //top triangle
+    //         const cursor_source: rl.Rectangle = .{
+    //             .x = 0,
+    //             .y = 0,
+    //             .width = @as(f32, @floatFromInt(self.cursor_texture.width)) - 0.1,
+    //             .height = @as(f32, @floatFromInt(self.cursor_texture.height)) - 0.1,
+    //         };
+
+    //         self.cursor_texture.drawPro(
+    //             cursor_source,
+    //             .{
+    //                 .x = center_x - CURSOR_SIZE / 2,
+    //                 .y = top_y,
+    //                 .width = CURSOR_SIZE, //square
+    //                 .height = CURSOR_SIZE,
+    //             },
+    //             .{
+    //                 .x = 0.5,
+    //                 .y = 0.5,
+    //             },
+    //             0,
+    //             .white,
+    //         );
+
+    //         self.cursor_texture.drawPro(
+    //             cursor_source,
+    //             .{
+    //                 .x = center_x - CURSOR_SIZE / 2,
+    //                 .y = top_y + NAME_FONT_SIZE,
+    //                 .width = CURSOR_SIZE, //square
+    //                 .height = CURSOR_SIZE,
+    //             },
+    //             .{
+    //                 .x = 0.5,
+    //                 .y = 0.5,
+    //             },
+    //             0,
+    //             .white,
+    //         );
+    //     }
+    // }
+
+    // const prompt_width = rl.measureText(PRESS_ENTER_TEXT, PRESS_ENTER_FONT_SIZE);
 
     //Print instructions to press enter to submit score
-    rl.drawText(
-        "Press Enter To Submit Score",
-        build_options.SCREEN_WIDTH / 2 - @divFloor(prompt_width, 2),
-        build_options.SCREEN_HEIGHT - 100,
-        PRESS_ENTER_FONT_SIZE,
-        .black,
-    );
+    // rl.drawText(
+    //     "Press Enter To Submit Score",
+    //     build_options.SCREEN_WIDTH / 2 - @divFloor(prompt_width, 2),
+    //     build_options.SCREEN_HEIGHT - 100,
+    //     PRESS_ENTER_FONT_SIZE,
+    //     .black,
+    // );
 }

@@ -120,7 +120,9 @@ pub fn setState(new_state: State) void {
         .game => {
             shop.setup(&board);
         },
-        .end => {},
+        .end => {
+            leaderboard.score = board.games;
+        },
     }
     state = new_state;
 
