@@ -148,6 +148,8 @@ pub fn update(self: *Board, dt: f64, shop: *Shop, bounds: rl.Rectangle) !void {
 
     self.dart_monkey_counter += dt * @min(500.0, self.dart_monkey_per_second);
 
+    if (self.dart_monkey_counter > 1.0) Dart.play_sound();
+
     while (self.dart_monkey_counter > 1.0) {
         if (self.dart_monkey_per_second < 25.0) {
             const x = @as(f32, @floatFromInt(rl.getRandomValue(0, 100))) / 100.0 * bounds.width * self.dart_monkey_radius + (bounds.height * (1.0 - self.dart_monkey_radius)) / 2;
@@ -196,6 +198,8 @@ pub fn update(self: *Board, dt: f64, shop: *Shop, bounds: rl.Rectangle) !void {
     if (rl.checkCollisionPointRec(mouse, bounds))
         if (rl.isMouseButtonPressed(.left)) {
             const throwing_radius = 100.0 * self.focus;
+
+            Dart.play_sound();
 
             for (0..self.throw_count) |_| {
                 const angle = @as(f32, @floatFromInt(rl.getRandomValue(0, 100))) / 100.0 * std.math.pi * 2;

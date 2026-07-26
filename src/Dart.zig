@@ -13,6 +13,8 @@ pub const THROW_TIME = 0.25;
 pub var dart_sprite: rl.Texture = undefined;
 pub var shadow_sprite: rl.Texture = undefined;
 
+pub var dart_sound: rl.Sound = undefined;
+
 toss_start: rl.Vector2 = .{ .x = 0, .y = 0 },
 peak: rl.Vector2 = .{ .x = 0, .y = 0 },
 position: rl.Vector2 = .{ .x = 0, .y = 0 },
@@ -34,6 +36,11 @@ pub fn update(self: *Dart, dt: f64) !void {
             self.rot += self.rot_vel * @as(f32, @floatCast(dt)) * 60;
         }
     }
+}
+
+pub fn play_sound() void {
+    rl.setSoundPitch(dart_sound, @as(f32, @floatFromInt(rl.getRandomValue(0, 100))) / 100);
+    rl.playSound(dart_sound);
 }
 
 pub fn draw(self: *const Dart, offset: rl.Vector2) void {
