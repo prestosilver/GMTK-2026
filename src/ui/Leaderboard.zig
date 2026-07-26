@@ -9,6 +9,8 @@ score: u32 = 0,
 active_idx: u32 = 0,
 name: [3:0]u8 = "AAA".*,
 cursor_texture: rl.Texture = undefined,
+start: std.Io.Timestamp = undefined,
+stop: std.Io.Timestamp = undefined,
 
 const FONT_SIZE = 20;
 const TEXT_PADDING = 20;
@@ -117,6 +119,21 @@ pub fn draw(self: *const Leaderboard, bounds: rl.Rectangle) void {
         score_text,
         @intFromFloat(SCORE_COORDS.x),
         @intFromFloat(SCORE_COORDS.y),
+        HEADER_FONT_SIZE,
+        HEADER_COLOR,
+    );
+
+    const time_text = std.fmt.bufPrintZ(&buf, "It took {} seconds.", .{self.start.durationTo(self.stop).toSeconds()}) catch unreachable;
+    const TIME_WIDTH = rl.measureText(score_text, HEADER_FONT_SIZE);
+
+    const TIME_COORDS: rl.Vector2 = .{
+        .x = LEADERBOARD_BOUNDS.x + (LEADERBOARD_BOUNDS.width - @as(f32, @floatFromInt(TIME_WIDTH))) * 0.5,
+        .y = LEADERBOARD_BOUNDS.y + LEADERBOARD_BOUNDS.width / 2.0 + 36,
+    };
+    rl.drawText(
+        time_text,
+        @intFromFloat(TIME_COORDS.x),
+        @intFromFloat(TIME_COORDS.y),
         HEADER_FONT_SIZE,
         HEADER_COLOR,
     );

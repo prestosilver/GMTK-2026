@@ -112,15 +112,17 @@ pub fn getLeaderboard(page: u32) void {
     }
 }
 
-pub fn setState(new_state: State) void {
+pub fn setState(new_state: State, io: std.Io) void {
     switch (new_state) {
         .title => {
             board.setup();
         },
         .game => {
+            leaderboard.start = .now(io, .real);
             shop.setup(&board);
         },
         .end => {
+            leaderboard.stop = .now(io, .real);
             leaderboard.score = board.games;
         },
     }
@@ -129,7 +131,7 @@ pub fn setState(new_state: State) void {
     transition_timer = 0.0;
 }
 
-pub fn main() !void {
+pub fn main(init: std.process.Init) !void {
     rl.initWindow(build_options.SCREEN_WIDTH, build_options.SCREEN_HEIGHT, build_options.GAME_NAME);
     defer rl.closeWindow();
 
@@ -158,7 +160,7 @@ pub fn main() !void {
     Dart.shadow_sprite = try rl.loadTexture("dart_shadow.png");
     defer Dart.shadow_sprite.unload();
 
-    setState(.title);
+    setState(.title, init.io);
 
     rl.hideCursor();
 
@@ -191,7 +193,7 @@ pub fn main() !void {
 
                     if (board.darts.items.len > 0) {
                         rl.playSound(concrete_sound);
-                        setState(.game);
+                        setState(.game, init.io);
                     }
                 },
                 .game => {
@@ -199,11 +201,11 @@ pub fn main() !void {
                     try shop.update(dt, shop_bounds);
 
                     if (board.darts.items.len >= board.darts.capacity)
-                        setState(.end);
+                        setState(.end, init.io);
                 },
                 .end => {
                     if (leaderboard.update(dt)) {
-                        setState(.title);
+                        setState(.title, init.io);
                     }
                 },
             }

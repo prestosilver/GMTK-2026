@@ -56,13 +56,13 @@ pub fn draw(self: *const Dart, offset: rl.Vector2) void {
                 .y = offset.y + self.position.y - DART_WIDTH * 0.5,
                 .width = DART_WIDTH,
                 .height = DART_WIDTH,
-            }, .{ .x = 0, .y = 0 }, 0.0, .fade(.white, @min(1.0, self.throw_timer / THROW_TIME)));
+            }, .{ .x = 0, .y = 0 }, 0.0, rl.colorAlpha(.white, @min(1.0, self.throw_timer / THROW_TIME)));
 
         dart_sprite.drawPro(.{ .x = 0, .y = 0, .width = 9, .height = 18 }, .{
             .x = offset.x + position.x - DART_WIDTH * 0.5,
             .y = offset.y + position.y,
             .width = DART_WIDTH,
             .height = DART_HEIGHT,
-        }, .{ .x = 0.5, .y = 0 }, self.rot, .fade(.white, @min(1.0, self.throw_timer / THROW_TIME)));
+        }, .{ .x = 0.5, .y = 0 }, self.rot, rl.colorAlpha(.white, @min(1.0, self.throw_timer / THROW_TIME)));
     }
 }

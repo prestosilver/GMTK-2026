@@ -86,6 +86,7 @@
       <canvas
         class="emscripten"
         id="canvas"
+        style="background: black;"
         oncontextmenu="event.preventDefault()"
         tabindex="-1"
       ></canvas>
@@ -130,11 +131,11 @@
               statusElement.innerHTML = text;
             }
 
-      #if MODULARIZE && !EXPORT_ES6
+#if MODULARIZE && !EXPORT_ES6
             var moduleArgs = {
-      #else
+#else
             var Module = {
-      #endif
+#endif
               print(...args) {
                 // These replacements are necessary if you render to raw HTML
                 //text = text.replace(/&/g, "&amp;");
@@ -159,7 +160,8 @@
               };
             };
     </script>
-    {{{ SCRIPT }}} #if MODULARIZE && !EXPORT_ES6
+    {{{ SCRIPT }}}
+#if MODULARIZE && !EXPORT_ES6
     <script type="text/javascript">
       {
         {
@@ -170,6 +172,6 @@
       }
       moduleArgs;
     </script>
-    #endif
+#endif
   </body>
 </html>
