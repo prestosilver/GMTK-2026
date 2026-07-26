@@ -131,8 +131,14 @@ pub fn main() !void {
     rl.initWindow(build_options.SCREEN_WIDTH, build_options.SCREEN_HEIGHT, build_options.GAME_NAME);
     defer rl.closeWindow();
 
+    rl.initAudioDevice();
+    defer rl.closeAudioDevice();
+
     rl.setTargetFPS(60);
     rl.setExitKey(.null);
+
+    const concrete_sound = try rl.loadSound("concrete.wav");
+    defer concrete_sound.unload();
 
     //load background
     background = try rl.loadTexture("background.png");
@@ -150,9 +156,7 @@ pub fn main() !void {
     Dart.shadow_sprite = try rl.loadTexture("dart_shadow.png");
     defer Dart.shadow_sprite.unload();
 
-    sendHighscore("JEF", 32);
-
-    setState(.end);
+    setState(.title);
 
     rl.hideCursor();
 
@@ -161,61 +165,85 @@ pub fn main() !void {
         transition_timer += dt / 2.0;
         transition_timer = @min(1.0, transition_timer);
 
-        if (board.throwing_phase == .place) {
-            board.throwing_dart.position = rl.getMousePosition();
+        board.throwing_dart.position = rl.getMousePosition();
+
+        {
+            const shop_bounds: rl.Rectangle = .{
+                .x = @floatCast(SHOP_BOUNDS.x + SHOP_BOUNDS.width * (1.0 - transition_timer)),
+                .y = SHOP_BOUNDS.y,
+                .width = SHOP_BOUNDS.width,
+                .height = SHOP_BOUNDS.height,
+            };
+
+            const board_bounds: rl.Rectangle = .{
+                .x = @floatCast(TITLE_BOARD_BOUNDS.x + (BOARD_BOUNDS.x - TITLE_BOARD_BOUNDS.x) * transition_timer),
+                .y = BOARD_BOUNDS.y,
+                .width = BOARD_BOUNDS.width,
+                .height = BOARD_BOUNDS.height,
+            };
+
+            // update state
+            switch (state) {
+                .title => {
+                    try board.update(dt, &shop, TITLE_BOARD_BOUNDS);
+
+                    if (board.darts.items.len > 0) {
+                        rl.playSound(concrete_sound);
+                        setState(.game);
+                    }
+                },
+                .game => {
+                    try board.update(dt, &shop, board_bounds);
+                    try shop.update(dt, shop_bounds);
+
+                    if (board.darts.items.len >= board.darts.capacity)
+                        setState(.end);
+                },
+                .end => {
+                    if (leaderboard.update(dt)) {
+                        setState(.title);
+                    }
+                },
+            }
         }
 
-        // update state
-        switch (state) {
-            .title => {
-                try board.update(dt, &shop, TITLE_BOARD_BOUNDS);
-                if (board.darts.items.len > 0)
-                    setState(.game);
-            },
-            .game => {
-                try board.update(dt, &shop, BOARD_BOUNDS);
-                try shop.update(dt, SHOP_BOUNDS);
+        {
+            // State can change during update, so these can change
+            const shop_bounds: rl.Rectangle = .{
+                .x = @floatCast(SHOP_BOUNDS.x + SHOP_BOUNDS.width * (1.0 - transition_timer)),
+                .y = SHOP_BOUNDS.y,
+                .width = SHOP_BOUNDS.width,
+                .height = SHOP_BOUNDS.height,
+            };
 
-                if (board.darts.items.len >= board.darts.capacity)
-                    setState(.end);
-            },
-            .end => {
-                if (leaderboard.update(dt)) {
-                    setState(.title);
-                }
-            },
-        }
+            const board_bounds: rl.Rectangle = .{
+                .x = @floatCast(TITLE_BOARD_BOUNDS.x + (BOARD_BOUNDS.x - TITLE_BOARD_BOUNDS.x) * transition_timer),
+                .y = BOARD_BOUNDS.y,
+                .width = BOARD_BOUNDS.width,
+                .height = BOARD_BOUNDS.height,
+            };
 
-        // draw frame
-        rl.beginDrawing();
-        defer rl.endDrawing();
+            // draw frame
+            rl.beginDrawing();
+            defer rl.endDrawing();
 
-        rl.clearBackground(BG_COLOR);
+            rl.clearBackground(BG_COLOR);
 
-        rl.drawTexture(background, 0, 0, .white);
+            rl.drawTexture(background, 0, 0, .white);
 
-        switch (state) {
-            .title => {
-                board.draw(TITLE_BOARD_BOUNDS);
-            },
-            .game => {
-                shop.draw(.{
-                    .x = @floatCast(SHOP_BOUNDS.x + SHOP_BOUNDS.width * (1.0 - transition_timer)),
-                    .y = SHOP_BOUNDS.y,
-                    .width = SHOP_BOUNDS.width,
-                    .height = SHOP_BOUNDS.height,
-                });
-                board.draw(.{
-                    .x = @floatCast(TITLE_BOARD_BOUNDS.x + (BOARD_BOUNDS.x - TITLE_BOARD_BOUNDS.x) * transition_timer),
-                    .y = BOARD_BOUNDS.y,
-                    .width = BOARD_BOUNDS.width,
-                    .height = BOARD_BOUNDS.height,
-                });
-            },
-            .end => {
-                board.draw(END_BOARD_BOUNDS);
-                leaderboard.draw(LEADERBORAD_BOUNDS);
-            },
+            switch (state) {
+                .title => {
+                    board.draw(TITLE_BOARD_BOUNDS);
+                },
+                .game => {
+                    shop.draw(shop_bounds);
+                    board.draw(board_bounds);
+                },
+                .end => {
+                    board.draw(END_BOARD_BOUNDS);
+                    leaderboard.draw(LEADERBORAD_BOUNDS);
+                },
+            }
         }
     }
 }
