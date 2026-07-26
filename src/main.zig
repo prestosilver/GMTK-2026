@@ -114,8 +114,14 @@ pub fn main() !void {
     rl.initWindow(build_options.SCREEN_WIDTH, build_options.SCREEN_HEIGHT, build_options.GAME_NAME);
     defer rl.closeWindow();
 
+    rl.initAudioDevice();
+    defer rl.closeAudioDevice();
+
     rl.setTargetFPS(60);
     rl.setExitKey(.null);
+
+    const concrete_sound = try rl.loadSound("concrete.wav");
+    defer concrete_sound.unload();
 
     //load background
     background = try rl.loadTexture("background.png");
@@ -164,8 +170,10 @@ pub fn main() !void {
                 .title => {
                     try board.update(dt, &shop, TITLE_BOARD_BOUNDS);
 
-                    if (board.darts.items.len > 0)
+                    if (board.darts.items.len > 0) {
+                        rl.playSound(concrete_sound);
                         setState(.game);
+                    }
                 },
                 .game => {
                     try board.update(dt, &shop, board_bounds);
