@@ -95,6 +95,23 @@ pub fn sendHighscore(name: *const [3]u8, score: u32) void {
     }
 }
 
+pub fn getLeaderboard(page: u32) void {
+    switch (@import("builtin").cpu.arch) {
+        .wasm32 => {
+            const emasm = @import("emasm.zig");
+
+            emasm.EM_ASM_PTR((
+                \\getLeaderboard($0).then((data) => {
+                \\const json = JSON.stringify(data);
+                \\
+                \\console.log(json);
+                \\})
+            ), .{page});
+        },
+        else => |platform| std.log.warn("unimplemented: sendHighscore({s}, {}) on {s} with salt `{s}`", .{ page, @tagName(platform), build_options.BOARD_SALT }),
+    }
+}
+
 pub fn setState(new_state: State) void {
     switch (new_state) {
         .title => {
