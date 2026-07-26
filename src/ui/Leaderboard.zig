@@ -1,17 +1,13 @@
 const std = @import("std");
 const rl = @import("raylib");
 const build_options = @import("build_options");
-const Button = @import("Button.zig");
 
 const OnClickCallbackType = *const fn () void;
-
 const Leaderboard = @This();
-btn: Button = .{
-    .text = "Submit Score",
-},
+
 score: u32 = 0,
 active_idx: u32 = 0,
-name: *const [3:0]u8 = "AAA",
+name: [3:0]u8 = "AAA".*,
 cursor_texture: rl.Texture = undefined,
 
 const FONT_SIZE = 20;
@@ -39,6 +35,9 @@ const NAME_SELECTION_PADDING = 20;
 
 const CURSOR_SIZE = 20;
 
+const PRESS_ENTER_TEXT = "Press Enter To Submit Score";
+const PRESS_ENTER_FONT_SIZE = 40;
+
 const LEADERBOARD_BOUNDS: rl.Rectangle = .{
     .x = (build_options.SCREEN_WIDTH - build_options.SCREEN_HEIGHT) * 0.5,
     .y = 0,
@@ -48,7 +47,6 @@ const LEADERBOARD_BOUNDS: rl.Rectangle = .{
 
 pub fn update(self: *Leaderboard, dt: f32) void {
     _ = dt;
-    self.btn.update(BUTTON_BOUNDS);
 
     //change highlighted character index....
     if (rl.isKeyPressed(.right)) {
@@ -57,9 +55,27 @@ pub fn update(self: *Leaderboard, dt: f32) void {
     } else if (rl.isKeyPressed(.left)) {
         self.active_idx = (self.active_idx + 3 - 1) % 3;
         is_pressed = true;
+    } else if (rl.isKeyPressed(.up)) {
+        var char_idx = std.mem.indexOf(u8, VALID_CHARS, &.{self.name[self.active_idx]}) orelse 0;
+        char_idx += 1;
+
+        //prevent overflow, 1 + 26
+        char_idx = char_idx % VALID_CHARS.len;
+        self.name[self.active_idx] = VALID_CHARS[char_idx];
+        is_pressed = true;
+    } else if (rl.isKeyPressed(.down)) {
+        var char_idx = std.mem.indexOf(u8, VALID_CHARS, &.{self.name[self.active_idx]}) orelse 0;
+        char_idx += VALID_CHARS.len - 1;
+        char_idx = char_idx % VALID_CHARS.len;
+        self.name[self.active_idx] = VALID_CHARS[char_idx];
+        is_pressed = true;
+    } else if (rl.isKeyPressed(.enter)) {
+        return true;
     } else {
         is_pressed = false;
     }
+
+    return false;
 }
 
 pub fn draw(self: *const Leaderboard, bounds: rl.Rectangle) void {
@@ -89,8 +105,10 @@ pub fn draw(self: *const Leaderboard, bounds: rl.Rectangle) void {
         HEADER_COLOR,
     );
 
+    const name = &self.name;
+
     //draw user name input
-    const NAME_WIDTH = rl.measureText(self.name, NAME_FONT_SIZE);
+    const NAME_WIDTH = rl.measureText(name, NAME_FONT_SIZE);
 
     const NAME_COORDS: rl.Vector2 = .{
         .x = LEADERBOARD_BOUNDS.x + (LEADERBOARD_BOUNDS.width - @as(f32, @floatFromInt(NAME_WIDTH))) * 0.5,
@@ -98,7 +116,7 @@ pub fn draw(self: *const Leaderboard, bounds: rl.Rectangle) void {
     };
 
     rl.drawText(
-        self.name,
+        name,
         @intFromFloat(NAME_COORDS.x),
         @intFromFloat(NAME_COORDS.y),
         NAME_FONT_SIZE,
@@ -109,22 +127,21 @@ pub fn draw(self: *const Leaderboard, bounds: rl.Rectangle) void {
     const char_x = NAME_COORDS.x;
 
     for (0..3) |idx| {
-        const char_buf: [1:0]u8 = .{self.name[idx]};
+        const idx_fl = @as(f32, @floatFromInt(idx));
+        const char_buf: [1:0]u8 = .{name[idx]};
         const char_width = rl.measureText(&char_buf, NAME_FONT_SIZE);
         const char_width_fl = @as(f32, @floatFromInt(char_width));
-        // const font_size_fl = @as(f32, @floatFromInt(NAME_FONT_SIZE));
 
         if (idx == self.active_idx) {
-            const center_x = char_x + char_width_fl * 0.5;
+            const center_x = char_x + (char_width_fl * 0.5) + (char_width_fl * idx_fl);
             const top_y = NAME_COORDS.y - NAME_SELECTION_PADDING;
-            // const bottom_y = NAME_COORDS.y + font_size_fl + NAME_SELECTION_PADDING;
 
             //top triangle
             const cursor_source: rl.Rectangle = .{
                 .x = 0,
                 .y = 0,
-                .width = @floatFromInt(self.cursor_texture.width),
-                .height = @floatFromInt(self.cursor_texture.height),
+                .width = @as(f32, @floatFromInt(self.cursor_texture.width)) - 0.1,
+                .height = @as(f32, @floatFromInt(self.cursor_texture.height)) - 0.1,
             };
 
             self.cursor_texture.drawPro(
@@ -136,8 +153,8 @@ pub fn draw(self: *const Leaderboard, bounds: rl.Rectangle) void {
                     .height = CURSOR_SIZE,
                 },
                 .{
-                    .x = 0.5 * cursor_source.width,
-                    .y = 0.5 * cursor_source.height,
+                    .x = 0.5,
+                    .y = 0.5,
                 },
                 0,
                 .white,
@@ -147,20 +164,28 @@ pub fn draw(self: *const Leaderboard, bounds: rl.Rectangle) void {
                 cursor_source,
                 .{
                     .x = center_x - CURSOR_SIZE / 2,
-                    .y = top_y + NAME_FONT_SIZE + 5,
+                    .y = top_y + NAME_FONT_SIZE,
                     .width = CURSOR_SIZE, //square
                     .height = CURSOR_SIZE,
                 },
                 .{
-                    .x = 0.5 * cursor_source.width,
-                    .y = 0.5 * cursor_source.height,
+                    .x = 0.5,
+                    .y = 0.5,
                 },
-                180,
+                0,
                 .white,
             );
         }
 
-        //Leaderboard Background
-        self.btn.draw(BUTTON_BOUNDS);
+        const prompt_width = rl.measureText(PRESS_ENTER_TEXT, PRESS_ENTER_FONT_SIZE);
+
+        //Print instructions to press enter to submit score
+        rl.drawText(
+            "Press Enter To Submit Score",
+            build_options.SCREEN_WIDTH / 2 - @divFloor(prompt_width, 2),
+            build_options.SCREEN_HEIGHT - 100,
+            PRESS_ENTER_FONT_SIZE,
+            .black,
+        );
     }
 }

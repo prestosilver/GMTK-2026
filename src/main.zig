@@ -130,7 +130,7 @@ pub fn main() !void {
 
     sendHighscore("JEF", 32);
 
-    setState(.title);
+    setState(.end);
 
     rl.hideCursor();
 
@@ -158,7 +158,9 @@ pub fn main() !void {
                     setState(.end);
             },
             .end => {
-                leaderboard.update(dt);
+                if (leaderboard.update(dt)) {
+                    setState(.title);
+                }
             },
         }
 
