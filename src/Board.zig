@@ -6,7 +6,7 @@ const Shop = @import("Shop.zig");
 
 const Board = @This();
 
-const MAX_DARTS = 1_000;
+const MAX_DARTS = 1_000_000;
 
 const BOARD_VALUES = [20]u32{ 20, 1, 18, 4, 13, 6, 10, 15, 2, 13, 3, 19, 7, 16, 8, 11, 14, 9, 12, 5 };
 
@@ -130,6 +130,9 @@ pub fn update(self: *Board, dt: f64, shop: *Shop, bounds: rl.Rectangle) !void {
 
     if (self.throwing_phase == .aim)
         self.throwing_time += dt;
+
+    if (self.dart_monkey_counter > 1.0)
+        self.dart_monkey_counter = 1.0;
 
     if (self.dart_monkey_per_second > 0.0)
         self.dart_monkey_counter += dt;
