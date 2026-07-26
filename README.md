@@ -63,17 +63,18 @@
     - [X] Person: Zig js transport
     - [X] Person: Art
 - [ ] Day 2 (Sa-TURD-day)
-    - [ ] The sami: Game over + Shop
+    - [X] The sami: Game over + Shop
     - [X] The sami: Shop
     - [X] Person: Title
     - [X] Person: Dart game 
     - [ ] Person: Scoring 
     - [ ] Person: Audio
-    - [ ] Upgrades
-    - [ ] The sami: Connect shop
+    - [X] Upgrades
+    - [X] The sami: Connect shop
     - [ ] Itch page
     - [ ] MVP
 - [ ] Day 3 (Winding Wingding day (The holy day (Sunday)))
     - [ ] The sami: Leaderboard 
     - [ ] Polish
+        - Limit rendering
     - [ ] Playtest
