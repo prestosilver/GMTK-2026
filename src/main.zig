@@ -154,6 +154,11 @@ pub fn main(init: std.process.Init) !void {
     Dart.dart_sprite = try rl.loadTexture("dart.png");
     defer Dart.dart_sprite.unload();
 
+    Dart.dart_sound = try rl.loadSound("dart.wav");
+    defer Dart.dart_sound.unload();
+
+    rl.setSoundVolume(Dart.dart_sound, 0.25);
+
     leaderboard.cursor_texture = try rl.loadTexture("name_arrow.png");
     defer leaderboard.cursor_texture.unload();
 
