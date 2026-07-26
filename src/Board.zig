@@ -125,7 +125,6 @@ pub fn throwDart(
     }
 
     if (points == 0) {
-        self.darts.items[self.darts.items.len - 1].throw_timer = Dart.THROW_TIME;
         self.darts.items[self.darts.items.len - 1].fall = true;
         self.darts.items[self.darts.items.len - 1].rot_vel = @as(f32, @floatFromInt(rl.getRandomValue(0, 100))) / 100.0 - 0.5;
     }
