@@ -1,5 +1,5 @@
 import { cors } from "hono/cors"
-import { OpenAPIHono } from "@hono/zod-openapi"
+import { Hono } from "hono";
 import { validators } from "@scope/leaderboard";
 
 import { PrismaClient } from "./packages/db/generated/client.ts"
@@ -8,9 +8,7 @@ const prisma = new PrismaClient({
     accelerateUrl: String(Deno.env.get("DB_URL"))
 });
 
-
-
-const app = new OpenAPIHono();
+const app = new Hono();
 
 //env//
 const port = Number(Deno.env.get("PORT"));
@@ -46,21 +44,11 @@ app.get("/get-leaderboard", validators.GetLeaderboardValidator, async (c) => {
         select: { name: true, score: true }
     });
 
-
     return c.json({
         success: true,
         data
     })
-
 })
-
-app.doc("/doc", {
-    openapi: "3.0.0",
-    info: {
-        version: "1.0.0",
-        title: "Darts API"
-    }
-});
 
 
 

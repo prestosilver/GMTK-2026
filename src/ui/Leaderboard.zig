@@ -24,9 +24,11 @@ const BUTTON_BOUNDS: rl.Rectangle = .{
 };
 
 const HEADER_TEXT = "Leaderboard";
-const HEADER_FONT_SIZE = 40;
+const HEADER_FONT_SIZE = 30;
 const HEADER_COLOR: rl.Color = .black;
 
+const NAME_SLOT_SIZE = 60;
+const TOTAL_NAME_WIDTH = NAME_SLOT_SIZE * 3;
 const NAME_FONT_SIZE = 55;
 const NAME_COLOR: rl.Color = .black;
 const NAME_POSITION_Y = build_options.SCREEN_HEIGHT - 250;
@@ -36,7 +38,7 @@ const NAME_SELECTION_PADDING = 20;
 const CURSOR_SIZE = 20;
 
 const PRESS_ENTER_TEXT = "Press Enter To Submit Score";
-const PRESS_ENTER_FONT_SIZE = 40;
+const PRESS_ENTER_FONT_SIZE = 35;
 
 const LEADERBOARD_BOUNDS: rl.Rectangle = .{
     .x = (build_options.SCREEN_WIDTH - build_options.SCREEN_HEIGHT) * 0.5,
@@ -95,7 +97,7 @@ pub fn draw(self: *const Leaderboard, bounds: rl.Rectangle) void {
         .r = 211,
         .g = 211,
         .b = 211,
-        .a = 125,
+        .a = 200,
     });
 
     //draw leaderboard header
@@ -117,25 +119,30 @@ pub fn draw(self: *const Leaderboard, bounds: rl.Rectangle) void {
         .y = NAME_POSITION_Y + TEXT_PADDING,
     };
 
-    rl.drawText(
-        name,
-        @intFromFloat(NAME_COORDS.x),
-        @intFromFloat(NAME_COORDS.y),
-        NAME_FONT_SIZE,
-        NAME_COLOR,
-    );
-
-    //draw selection triangles
-    const char_x = NAME_COORDS.x;
+    //get midpoint for starting position
+    const start_x = LEADERBOARD_BOUNDS.x + (LEADERBOARD_BOUNDS.width - TOTAL_NAME_WIDTH) * 0.5;
 
     for (0..3) |idx| {
         const idx_fl = @as(f32, @floatFromInt(idx));
-        const char_buf: [1:0]u8 = .{name[idx]};
-        const char_width = rl.measureText(&char_buf, NAME_FONT_SIZE);
-        const char_width_fl = @as(f32, @floatFromInt(char_width));
+        const slot_x = start_x + NAME_SLOT_SIZE * idx_fl;
 
+        const char_buf: [1:0]u8 = .{name[idx]};
+        const char_width = @as(f32, @floatFromInt(rl.measureText(&char_buf, NAME_FONT_SIZE)));
+
+        //center letter
+        const draw_x = slot_x + (NAME_SLOT_SIZE - char_width) * 0.5;
+
+        rl.drawText(
+            &char_buf,
+            @intFromFloat(draw_x),
+            @intFromFloat(NAME_COORDS.y),
+            NAME_FONT_SIZE,
+            NAME_COLOR,
+        );
+
+        //draw cursors if ids of active one.
         if (idx == self.active_idx) {
-            const center_x = char_x + (char_width_fl * 0.5) + (char_width_fl * idx_fl);
+            const center_x = slot_x + NAME_SLOT_SIZE * 0.5;
             const top_y = NAME_COORDS.y - NAME_SELECTION_PADDING;
 
             //top triangle
@@ -178,16 +185,16 @@ pub fn draw(self: *const Leaderboard, bounds: rl.Rectangle) void {
                 .white,
             );
         }
-
-        const prompt_width = rl.measureText(PRESS_ENTER_TEXT, PRESS_ENTER_FONT_SIZE);
-
-        //Print instructions to press enter to submit score
-        rl.drawText(
-            "Press Enter To Submit Score",
-            build_options.SCREEN_WIDTH / 2 - @divFloor(prompt_width, 2),
-            build_options.SCREEN_HEIGHT - 100,
-            PRESS_ENTER_FONT_SIZE,
-            .black,
-        );
     }
+
+    const prompt_width = rl.measureText(PRESS_ENTER_TEXT, PRESS_ENTER_FONT_SIZE);
+
+    //Print instructions to press enter to submit score
+    rl.drawText(
+        "Press Enter To Submit Score",
+        build_options.SCREEN_WIDTH / 2 - @divFloor(prompt_width, 2),
+        build_options.SCREEN_HEIGHT - 100,
+        PRESS_ENTER_FONT_SIZE,
+        .black,
+    );
 }

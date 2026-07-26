@@ -7,6 +7,8 @@ const Dart = @import("Dart.zig");
 const Shop = @import("Shop.zig");
 const Leaderboard = @import("./ui/Leaderboard.zig");
 
+var background: rl.Texture = undefined;
+
 pub fn customLogFn(
     comptime level: std.log.Level,
     comptime _: @TypeOf(.EnumLiteral),
@@ -115,6 +117,9 @@ pub fn main() !void {
     rl.setTargetFPS(60);
     rl.setExitKey(.null);
 
+    //load background
+    background = try rl.loadTexture("background.png");
+
     // Load a texture
     board.sprite = try rl.loadTexture("board.png");
     defer board.sprite.unload();
@@ -130,7 +135,7 @@ pub fn main() !void {
 
     sendHighscore("JEF", 32);
 
-    setState(.title);
+    setState(.end);
 
     rl.hideCursor();
 
@@ -169,6 +174,8 @@ pub fn main() !void {
         defer rl.endDrawing();
 
         rl.clearBackground(BG_COLOR);
+
+        rl.drawTexture(background, 0, 0, .white);
 
         switch (state) {
             .title => {
